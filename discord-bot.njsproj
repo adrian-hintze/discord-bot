@@ -35,9 +35,19 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include=".gitignore" />
+    <Content Include="build\conf\conf.json" />
+    <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="tsconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="build\" />
+    <Folder Include="build\conf\" />
+    <Folder Include="src\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="src\Main.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
