@@ -1,11 +1,13 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "lib": ["es6"],
-    "sourceMap": true
-  },
-  "exclude": [
-    "node_modules"
-  ]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "lib": [ "es6" ],
+        "outDir": "./build/bot/",
+        "rootDir": "./src/",
+        "strict": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }
