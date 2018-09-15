@@ -1,7 +1,8 @@
 ## Project ##
 
 node_modules/
-build/
+build/bot/
+build/conf/conf.json
 
 
 ## VS ##

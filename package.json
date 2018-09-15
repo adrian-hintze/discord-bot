@@ -4,17 +4,23 @@
     "description": "Small discord bot",
     "private": true,
     "author": {
-        "name": "Adrian Hintze"
+        "name": "Adrian Hintze",
+        "email": "hintze.adrian@gmail.com",
+        "url": "https://github.com/Rydion"
+    },
+    "engines": {
+        "node": "10.10.0",
+        "npm": "6.4.1"
+    },
+    "scripts": {
+        "start": "node ./build/bot/Main.js",
+        "build": "tsc"
     },
     "dependencies": {
         "discord.js": "11.4.2"
     },
     "devDependencies": {
-        "@types/node": "10.7.0",
+        "@types/node": "10.9.4",
         "typescript": "3.0.3"
-    },
-    "scripts": {
-        "build": "tsc",
-        "run": "node ./build/bot/Main.js"
     }
 }
