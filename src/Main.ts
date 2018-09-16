@@ -76,9 +76,9 @@ client.on('message', async (message) => {
         return;
     }
 
-    if (content.startsWith('/save')) {
+    if (content.startsWith('/debug')) {
         try {
-            await saveHandler(message);
+            await debugHandler(message);
         }
         catch (error) {
             console.error('Something happened.', error);
@@ -86,9 +86,39 @@ client.on('message', async (message) => {
         return;
     }
 
-    if (content.startsWith('/debug')) {
+    if (content.startsWith('/help')) {
         try {
-            await debugHandler(message);
+            await helpHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/info')) {
+        try {
+            await infoHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/list')) {
+        try {
+            await listHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/save')) {
+        try {
+            await saveHandler(message);
         }
         catch (error) {
             console.error('Something happened.', error);
@@ -137,7 +167,41 @@ client.login(token)
 
 async function mentionHandler(message: Message): Promise<void> {
     const { content } = message;
-    await message.channel.send(content);
+    const parts: Array<string> = content.split(/[ ]+/);
+
+    if (parts[1] === 'help') {
+        helpHandler(message);
+    }
+}
+
+async function helpHandler(message: Message): Promise<void> {
+    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list img - Get a list of all available images\n/save <name> <url> - Save a new image\n`)
+}
+
+async function infoHandler(message: Message): Promise<void> {
+    await message.channel.send('Author: Adrian Hintze @Rydion\nRepository:https://github.com/Rydion/discord-bot\nUse "@Cortana help" for more commands');
+}
+
+async function listHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        return;
+    }
+
+    const param: string = parts[1].trim();
+    switch (param) {
+        case 'img':
+            let responseContents: string = 'Esto es lo que te puedo enseñar:\n';
+            for (let key in imgMappings) {
+                responseContents += `${key}\n`;
+            }
+            await message.channel.send(`${author} ${responseContents}`);
+            return;
+        default:
+            await message.channel.send(`${author} ¿Porqué no pruebas con algo bonito como: img?`);
+    }
 }
 
 async function saveHandler(message: Message): Promise<void> {
@@ -176,14 +240,12 @@ async function debugHandler(message: Message): Promise<void> {
 
     const param: string = parts[1].trim();
     switch (param) {
-        case 'info':
-            await message.channel.send('Author: Adrian Hintze @Rydion\nRepository:https://github.com/Rydion/discord-bot\nUse "@Cortana help" for more commands');
-            return;
         case 'print-img':
-            // TODO format file
-            await message.channel.send(JSON.stringify(imgMappings));
+            await message.channel.send('img.json', {
+                files: [imgMappingsFilePath]
+            });
             return;
         default:
-            await message.channel.send(`Unknown command ${param}`);
+            await message.channel.send(`Unknown command ${param}.`);
     }
 }
