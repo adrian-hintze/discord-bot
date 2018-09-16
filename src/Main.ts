@@ -72,6 +72,7 @@ client.on('message', async (message) => {
                 catch (error) {
                     console.error('Something happened.', error);
                 }
+                return;
             }
 
             const key: string = parts[1];
@@ -83,11 +84,13 @@ client.on('message', async (message) => {
                 catch (error) {
                     console.error('Something happened.', error);
                 }
+                return;
             }
 
             gifMappings[key] = url;
             writeFile(gifMappingsFilePath, JSON.stringify(gifMappings), 'utf8', async (error) => {
                 if (error) {
+                    console.error('Something happened.', error);
                     return;
                 }
 
