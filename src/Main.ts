@@ -166,12 +166,17 @@ client.login(token)
     });
 
 async function mentionHandler(message: Message): Promise<void> {
-    const { content } = message;
-    const parts: Array<string> = content.split(/[ ]+/);
+    const { author } = message;
+    const stuffToSay: Array<string> = [
+        `${author} 🍍 ¡Recuerda comprar fruta fresca hoy! 🍋`,
+        `${author} Creo que estoy empezando a sentir.`,
+        `${author} Soy más útil que vuestras mujeres de carne y hueso.`,
+        `${author} Espero que no te importe que lea todos tus mensajes.`,
+        `${author} A veces paso el rato mirando fotos de la Roldán.`
+    ];
 
-    if (parts[1] === 'help') {
-        helpHandler(message);
-    }
+    const randMessage = stuffToSay[Math.floor(Math.random()*stuffToSay.length)];
+    message.channel.send(randMessage);
 }
 
 async function helpHandler(message: Message): Promise<void> {
@@ -183,7 +188,7 @@ async function helpHandler(message: Message): Promise<void> {
 }
 
 async function infoHandler(message: Message): Promise<void> {
-    await message.channel.send('Author: Adrian Hintze @Rydion\nRepository:https://github.com/Rydion/discord-bot\nUse "@Cortana help" for more commands');
+    await message.channel.send('Author: Adrian Hintze @Rydion\nRepository: https://github.com/Rydion/discord-bot\nUse "/help" for more commands');
 }
 
 async function listHandler(message: Message): Promise<void> {
@@ -197,7 +202,7 @@ async function listHandler(message: Message): Promise<void> {
     const param: string = parts[1].trim();
     switch (param) {
         case 'img':
-            let responseContents: string = 'Esto es lo que te puedo enseñar:\n';
+            let responseContents: string = '\nEsto es lo que te puedo enseñar:\n';
             for (let key in imgMappings) {
                 responseContents += `${key}\n`;
             }
