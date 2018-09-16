@@ -64,6 +64,18 @@ client.on('ready', () => {
 
 client.on('message', async (message) => {
     const content: string = message.content;
+
+    const mentionsCortana: boolean = !!message.mentions.users.get(client.user.id);
+    if (mentionsCortana) {
+        try {
+            await mentionHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
     if (content.startsWith('/save')) {
         try {
             await saveHandler(message);
@@ -123,6 +135,11 @@ client.login(token)
         process.exit(1);
     });
 
+async function mentionHandler(message: Message): Promise<void> {
+    const { content } = message;
+    await message.channel.send(content);
+}
+
 async function saveHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
@@ -160,7 +177,10 @@ async function debugHandler(message: Message): Promise<void> {
     const param: string = parts[1].trim();
     switch (param) {
         case 'info':
+            await message.channel.send('Author: Adrian Hintze @Rydion\nRepository:https://github.com/Rydion/discord-bot\nUse "@Cortana help" for more commands');
+            return;
         case 'print-img':
+            // TODO format file
             await message.channel.send(JSON.stringify(imgMappings));
             return;
         default:
