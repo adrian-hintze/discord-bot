@@ -14,6 +14,9 @@
     },
     "scripts": {
         "start": "node ./build/bot/Main.js",
+        "full-deploy": "npm install && npm run deploy",
+        "predeploy": "rimraf ./build/",
+        "deploy": "npm run build && npm run forever",
         "build": "tsc",
         "forever": "forever start ./build/bot/Main.js"
     },
@@ -23,6 +26,7 @@
         "erlpack": "0.1.2",
         "mkdirp": "0.5.1",
         "node-opus": "0.2.7",
+        "rimraf": "2.6.2",
         "zlib-sync": "0.1.4"
     },
     "devDependencies": {
