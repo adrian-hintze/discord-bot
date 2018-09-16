@@ -15,7 +15,7 @@
     "scripts": {
         "start": "node ./build/bot/Main.js",
         "full-deploy": "npm install && npm run deploy",
-        "predeploy": "rimraf ./build/",
+        "predeploy": "rimraf ./build/bot/",
         "deploy": "npm run build && npm run forever",
         "build": "tsc",
         "forever": "forever start ./build/bot/Main.js"
