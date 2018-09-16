@@ -44,6 +44,7 @@
   <ItemGroup>
     <Folder Include="build\" />
     <Folder Include="build\conf\" />
+    <Folder Include="build\mappings\" />
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
