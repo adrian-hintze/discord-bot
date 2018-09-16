@@ -3,7 +3,7 @@ import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
 import { join as joinPath } from 'path';
 import { isWebUri } from 'valid-url';
 import { promisify } from 'util';
-const mkdirp = require('mkdirp');
+import { sync as mkdirSync } from 'mkdirp';
 
 interface Mapping {
     [key: string]: string
@@ -23,7 +23,7 @@ const token = conf.key;
 const mappingsDirPath = joinPath(__dirname, '..', 'mappings');
 try {
     if (!existsSync(mappingsDirPath)) {
-        mkdirp.sync(mappingsDirPath);
+        mkdirSync(mappingsDirPath);
     }
 }
 catch (error) {
@@ -143,18 +143,9 @@ client.on('message', async (message) => {
     }
 
     /*
-    const containsCortana: boolean = message.content.toLowerCase().includes('cortana');
-    const mentionsCortana: boolean = !!message.mentions.users.get(client.user.id);
-    if (containsCortana) {
-        message.channel.send(`${author} 🍍 ¡Recuerda comprar fruta fresca hoy! 🍋`);
-        return;
-    }
-
-    if (mentionsCortana) {
-        message.channel.send(`To' fresca la frutita.`, {
-            tts: true
-        });
-    }
+    message.channel.send(`To' fresca la frutita.`, {
+        tts: true
+    });
     */
 });
 
