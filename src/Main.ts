@@ -93,6 +93,7 @@ client.on('message', async (message) => {
 
                 try {
                     await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
+                    await message.delete();
                 }
                 catch (error) {
                     console.error('Something happened.', error);
