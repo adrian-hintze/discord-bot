@@ -1,11 +1,15 @@
 import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.js';
 import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
 import { join as joinPath } from 'path';
+import { isWebUri } from 'valid-url';
+import { promisify } from 'util';
 const mkdirp = require('mkdirp');
 
 interface Mapping {
     [key: string]: string
 }
+
+const writeFileAsync = promisify(writeFile);
 
 const confFilePath = joinPath(__dirname, '..', 'conf', 'conf.json');
 if (!existsSync(confFilePath)) {
@@ -27,18 +31,18 @@ catch (error) {
     process.exit(1);
 }
 
-const gifMappingsFilePath = joinPath(mappingsDirPath, 'gif.json');
+const imgMappingsFilePath = joinPath(mappingsDirPath, 'img.json');
 try {
-    if (!existsSync(gifMappingsFilePath)) {
-        writeFileSync(gifMappingsFilePath, JSON.stringify({}), 'utf8');
+    if (!existsSync(imgMappingsFilePath)) {
+        writeFileSync(imgMappingsFilePath, JSON.stringify({}), 'utf8');
     }
 }
 catch (error) {
-    console.error('I/O error gif mappings file.', error);
+    console.error('I/O error img mappings file.', error);
     process.exit(1);
 }
 
-const gifMappings: Mapping = JSON.parse(readFileSync(gifMappingsFilePath, 'utf8'));
+const imgMappings: Mapping = JSON.parse(readFileSync(imgMappingsFilePath, 'utf8'));
 
 
 const client: Client = new Client();
@@ -59,81 +63,57 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-    const author: User = message.author;
     const content: string = message.content;
+    if (content.startsWith('/save')) {
+        try {
+            await saveHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/debug')) {
+        try {
+            await debugHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
 
     try {
-        if (content.startsWith('/save')) {
-            const parts: Array<string> = content.split(/[ ]+/);
-            if (parts.length !== 3) {
-                try {
-                    await message.channel.send(`${author} ¿Qué quieres que haga con esto? Háblame bien.`);
-                }
-                catch (error) {
-                    console.error('Something happened.', error);
-                }
-                return;
-            }
-
-            const key: string = parts[1];
-            const url: string = parts[2];
-            if (gifMappings[key]) {
-                try {
-                    await message.channel.send(`${author} Pfff, ${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
-                }
-                catch (error) {
-                    console.error('Something happened.', error);
-                }
-                return;
-            }
-
-            gifMappings[key] = url;
-            writeFile(gifMappingsFilePath, JSON.stringify(gifMappings), 'utf8', async (error) => {
-                if (error) {
-                    console.error('Something happened.', error);
-                    return;
-                }
-
-                try {
-                    await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
-                    await message.delete();
-                }
-                catch (error) {
-                    console.error('Something happened.', error);
-                }
-            });
-
-            return;
-        }
-
         if (content.startsWith('/')) {
-            const key = message.content.toLowerCase().substring(1, message.content.length);
-            const url = gifMappings[key];
+            const key = content.toLowerCase().substring(1, content.length);
+            const url = imgMappings[key];
             if (url) {
+                const author: User = message.author;
                 await message.channel.send(`${author} ${url}`);
                 await message.delete();
             }
             return;
         }
-
-        /*
-        const containsCortana: boolean = message.content.toLowerCase().includes('cortana');
-        const mentionsCortana: boolean = !!message.mentions.users.get(client.user.id);
-        if (containsCortana) {
-            message.channel.send(`${author} 🍍 ¡Recuerda comprar fruta fresca hoy! 🍋`);
-            return;
-        }
-
-        if (mentionsCortana) {
-            message.channel.send(`To' fresca la frutita.`, {
-                tts: true
-            });
-        }
-        */
     }
     catch (error) {
         console.error('Something happened.', error);
     }
+
+    /*
+    const containsCortana: boolean = message.content.toLowerCase().includes('cortana');
+    const mentionsCortana: boolean = !!message.mentions.users.get(client.user.id);
+    if (containsCortana) {
+        message.channel.send(`${author} 🍍 ¡Recuerda comprar fruta fresca hoy! 🍋`);
+        return;
+    }
+
+    if (mentionsCortana) {
+        message.channel.send(`To' fresca la frutita.`, {
+            tts: true
+        });
+    }
+    */
 });
 
 client.login(token)
@@ -142,3 +122,48 @@ client.login(token)
         console.error('Error logging in.', error);
         process.exit(1);
     });
+
+async function saveHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 3) {
+        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        return;
+    }
+
+    const url: string = parts[2].trim();
+    if (!isWebUri(url)) {
+        await message.channel.send(`${author} ¿Qué quieres que haga con esto? Dame una URL y te daré algo mejor a cambio... 🍑`);
+        return;
+    }
+
+    const key: string = parts[1].trim();
+    if (imgMappings[key]) {
+        await message.channel.send(`${author} Pfff, ${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
+        return;
+    }
+
+    imgMappings[key] = url;
+    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8')
+    await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
+    await message.delete();
+}
+
+async function debugHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${parts.length - 1} params received, 1 expected.`);
+        return;
+    }
+
+    const param: string = parts[1].trim();
+    switch (param) {
+        case 'info':
+        case 'print-img':
+            await message.channel.send(JSON.stringify(imgMappings));
+            return;
+        default:
+            await message.channel.send(`Unknown command ${param}`);
+    }
+}

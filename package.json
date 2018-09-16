@@ -27,10 +27,12 @@
         "mkdirp": "0.5.1",
         "node-opus": "0.2.7",
         "rimraf": "2.6.2",
+        "valid-url": "1.0.9",
         "zlib-sync": "0.1.4"
     },
     "devDependencies": {
         "@types/node": "10.9.4",
+        "@types/valid-url": "1.0.2",
         "typescript": "3.0.3"
     }
 }
