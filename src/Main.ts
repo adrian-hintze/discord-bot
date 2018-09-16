@@ -86,13 +86,13 @@ client.on('message', async (message) => {
             }
 
             gifMappings[key] = url;
-            writeFile(gifMappingsFilePath, gifMappings, 'utf8', async (error) => {
+            writeFile(gifMappingsFilePath, JSON.stringify(gifMappings), 'utf8', async (error) => {
                 if (error) {
                     return;
                 }
 
                 try {
-                    await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 👄`);
+                    await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
                 }
                 catch (error) {
                     console.error('Something happened.', error);

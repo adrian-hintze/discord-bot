@@ -14,7 +14,8 @@
     },
     "scripts": {
         "start": "node ./build/bot/Main.js",
-        "build": "tsc"
+        "build": "tsc",
+        "forever": "forever start ./build/bot/Main.js"
     },
     "dependencies": {
         "@discordjs/uws": "10.149.0",
