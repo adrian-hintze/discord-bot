@@ -175,6 +175,10 @@ async function mentionHandler(message: Message): Promise<void> {
 }
 
 async function helpHandler(message: Message): Promise<void> {
+    if (message.author.id === client.user.id) {
+        return;
+    }
+
     await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list img - Get a list of all available images\n/save <name> <url> - Save a new image\n`)
 }
 
@@ -240,7 +244,7 @@ async function debugHandler(message: Message): Promise<void> {
 
     const param: string = parts[1].trim();
     switch (param) {
-        case 'print-img':
+        case 'download-img-file':
             await message.channel.send('img.json', {
                 files: [imgMappingsFilePath]
             });
