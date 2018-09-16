@@ -35,9 +35,6 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include=".gitignore" />
-    <Content Include="app.yaml">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="build\conf\conf.json" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />

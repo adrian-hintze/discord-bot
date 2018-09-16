@@ -9,8 +9,8 @@
         "url": "https://github.com/Rydion"
     },
     "engines": {
-        "node": "8.x.x",
-        "npm": "5.x.x"
+        "node": "10.10.0",
+        "npm": "6.4.1"
     },
     "scripts": {
         "start": "node ./build/bot/Main.js",
