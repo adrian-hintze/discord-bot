@@ -20,7 +20,7 @@ class Assistant {
 
     async login() {
         this._client = new Compute({});
-        const url = `https://embeddedassistant.googleapis.com/dns/v1/projects/${this._projectId}`;
+        const url = `https://www.googleapis.com/dns/v1/projects/${this._projectId}`;
         const res = await this._client.request({ url });
         console.log(res);
     }
