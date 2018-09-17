@@ -8,6 +8,10 @@ class Assistant {
         console.log(res);
     }
 
+    test() {
+        return Math.random();
+    }
+
     private _client: any;
     private _projectId: string = 'discord-bot';
 }

@@ -7,6 +7,7 @@ import { sync as mkdirSync } from 'mkdirp';
 import { isWebUri } from 'valid-url';
 
 import { assistant } from './Assistant';
+console.log(assistant.test());
 
 interface Mapping {
     [key: string]: string
