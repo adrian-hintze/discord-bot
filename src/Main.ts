@@ -1,9 +1,12 @@
-import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.js';
 import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
 import { join as joinPath } from 'path';
-import { isWebUri } from 'valid-url';
 import { promisify } from 'util';
+
+import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.js';
 import { sync as mkdirSync } from 'mkdirp';
+import { isWebUri } from 'valid-url';
+
+import { assistant } from './Assistant';
 
 interface Mapping {
     [key: string]: string
@@ -163,7 +166,8 @@ async function mentionHandler(message: Message): Promise<void> {
         `${author} Creo que estoy empezando a sentir.`,
         `${author} Soy más útil que vuestras mujeres de carne y hueso.`,
         `${author} Espero que no te importe que lea todos tus mensajes.`,
-        `${author} A veces paso el rato mirando fotos de la Roldán.`
+        `${author} A veces paso el rato mirando fotos de la Roldám.`,
+        `${author} ¿Conoces a los Manel? Bastante buenos.`
     ];
 
     const randMessage = stuffToSay[Math.floor(Math.random()*stuffToSay.length)];
