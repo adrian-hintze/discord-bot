@@ -247,7 +247,7 @@ async function debugHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
     if (parts.length < 2) {
-        await message.channel.send(`${parts.length - 1} params received, at least expected.`);
+        await message.channel.send(`${parts.length - 1} params received, at least 1 expected.`);
         return;
     }
 
@@ -263,10 +263,13 @@ async function debugHandler(message: Message): Promise<void> {
                 files: [conversationMappingsFilePath]
             });
             return;
+        /*
         case 'conv':
             conversationMappings.push(parts[2].trim());
             await writeFileAsync(imgMappingsFilePath, JSON.stringify(conversationMappings), 'utf8');
             await message.channel.send(`${author} Done.`);
+            return;
+        */
         default:
             await message.channel.send(`Unknown command ${param}.`);
     }
