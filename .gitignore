@@ -3,7 +3,7 @@
 node_modules/
 build/bot/
 build/conf/*
-
+build/mappings/*
 
 ## VS ##
 

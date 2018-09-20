@@ -7,6 +7,10 @@ const assistant = new GoogleAssistant({
     savedTokensPath: path.join(__dirname, '..', 'tokens', 'tokens.json'),
 });
 
+assistant
+    .on('ready', () => console.log('Assistant ready.'))
+    .on('error', (error: Error) => { console.log('Assistant Error.', error); });
+
 function startConversation(conversation: any) {
     conversation
         .on('response', (text: string) => {
