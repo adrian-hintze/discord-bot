@@ -19,7 +19,6 @@ if (!existsSync(confFilePath)) {
     console.error('Conf file does not exist.');
     process.exit(1);
 }
-
 const conf = JSON.parse(readFileSync(confFilePath, 'utf8'));
 const token = conf.key;
 
@@ -44,8 +43,19 @@ catch (error) {
     console.error('I/O error img mappings file.', error);
     process.exit(1);
 }
-
 const imgMappings: Mapping = JSON.parse(readFileSync(imgMappingsFilePath, 'utf8'));
+
+const conversationMappingsFilePath = joinPath(mappingsDirPath, 'conversation.json');
+try {
+    if (!existsSync(conversationMappingsFilePath)) {
+        writeFileSync(conversationMappingsFilePath, JSON.stringify([]), 'utf8');
+    }
+}
+catch (error) {
+    console.error('I/O error conversation mappings file.', error);
+    process.exit(1);
+}
+const conversationMappings: Array<string> = JSON.parse(readFileSync(imgMappingsFilePath, 'utf8'));
 
 
 const client: Client = new Client();
@@ -161,17 +171,10 @@ client.login(token)
 
 async function mentionHandler(message: Message): Promise<void> {
     const { author } = message;
-    const stuffToSay: Array<string> = [
-        `${author} 🍍 ¡Recuerda comprar fruta fresca hoy! 🍋`,
-        `${author} Creo que estoy empezando a sentir.`,
-        `${author} Soy más útil que vuestras mujeres de carne y hueso.`,
-        `${author} Espero que no te importe que lea todos tus mensajes.`,
-        `${author} A veces paso el rato mirando fotos de la Roldám.`,
-        `${author} ¿Conoces a los Manel? Bastante buenos.`
-    ];
-
-    const randMessage = stuffToSay[Math.floor(Math.random()*stuffToSay.length)];
-    message.channel.send(randMessage);
+    const randMessage = conversationMappings[Math.floor(Math.random()*conversationMappings.length)];
+    message.channel.send(`${author} ${randMessage}`, {
+        tts: true
+    });
 
     //getAnswer(message.content);
 }
@@ -231,7 +234,7 @@ async function saveHandler(message: Message): Promise<void> {
     }
 
     imgMappings[key] = url;
-    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8')
+    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
     await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
     await message.delete();
 }
@@ -239,8 +242,8 @@ async function saveHandler(message: Message): Promise<void> {
 async function debugHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
-    if (parts.length !== 2) {
-        await message.channel.send(`${parts.length - 1} params received, 1 expected.`);
+    if (parts.length < 2) {
+        await message.channel.send(`${parts.length - 1} params received, at least expected.`);
         return;
     }
 
@@ -251,6 +254,15 @@ async function debugHandler(message: Message): Promise<void> {
                 files: [imgMappingsFilePath]
             });
             return;
+        case 'download-converstion-file':
+            await message.channel.send('img.json', {
+                files: [conversationMappingsFilePath]
+            });
+            return;
+        case 'conv':
+            conversationMappings.push(parts[2].trim());
+            await writeFileAsync(imgMappingsFilePath, JSON.stringify(conversationMappings), 'utf8');
+            await message.channel.send(`${author} Done.`);
         default:
             await message.channel.send(`Unknown command ${param}.`);
     }
