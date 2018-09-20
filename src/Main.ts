@@ -55,7 +55,7 @@ catch (error) {
     console.error('I/O error conversation mappings file.', error);
     process.exit(1);
 }
-const conversationMappings: Array<string> = JSON.parse(readFileSync(imgMappingsFilePath, 'utf8'));
+const conversationMappings: Array<string> = JSON.parse(readFileSync(conversationMappingsFilePath, 'utf8'));
 
 
 const client: Client = new Client();
