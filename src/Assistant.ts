@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { ClientManager } from 'discord.js';
 
 const GoogleAssistant: any = require('google-assistant');
 
@@ -15,7 +16,6 @@ function startConversation(conversation: any) {
     conversation
         .on('response', (text: string) => {
             console.log('Assistant Response:', text);
-            conversation.end();
         })
         .on('ended', (error: any, continueConversation: any) => {
             if (error) {
@@ -23,8 +23,8 @@ function startConversation(conversation: any) {
             }
             else {
                 console.log('Conversation Complete');
-                conversation.end();
             }
+            conversation.end();
         })
         .on('error', (error: Error) => {
             console.log('Conversation Error:', error);
@@ -32,11 +32,10 @@ function startConversation(conversation: any) {
 };
 
 export function getAnswer(query: string) {
+    console.log(query.substring(22)); // remove mention, this needs to be done before`passing the query
     assistant.start({
         lang: 'es-ES',
-        textQuery: query,
-        screen: {
-            isOn: true
-        }
+        textQuery: query.substring(22),
+        isNew: true
     }, startConversation);
 }

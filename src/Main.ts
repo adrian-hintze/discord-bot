@@ -173,7 +173,7 @@ async function mentionHandler(message: Message): Promise<void> {
     const randMessage = stuffToSay[Math.floor(Math.random()*stuffToSay.length)];
     message.channel.send(randMessage);
 
-    getAnswer(message.content);
+    //getAnswer(message.content);
 }
 
 async function helpHandler(message: Message): Promise<void> {
