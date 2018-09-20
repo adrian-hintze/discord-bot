@@ -3,7 +3,7 @@ import * as path from 'path';
 const GoogleAssistant: any = require('google-assistant');
 
 const assistant = new GoogleAssistant({
-    keyFilePath: path.join(__dirname, '..', 'conf', 'conf.json'),
+    keyFilePath: path.join(__dirname, '..', 'conf', 'auth.json'),
     savedTokensPath: path.join(__dirname, '..', 'tokens', 'tokens.json'),
 });
 
