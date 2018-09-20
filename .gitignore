@@ -2,7 +2,7 @@
 
 node_modules/
 build/bot/
-build/conf/conf.json
+build/conf/*
 
 
 ## VS ##

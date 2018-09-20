@@ -6,8 +6,7 @@ import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.
 import { sync as mkdirSync } from 'mkdirp';
 import { isWebUri } from 'valid-url';
 
-import { assistant } from './Assistant';
-//console.log(assistant.test());
+import { getAnswer } from './Assistant';
 
 interface Mapping {
     [key: string]: string
@@ -173,6 +172,8 @@ async function mentionHandler(message: Message): Promise<void> {
 
     const randMessage = stuffToSay[Math.floor(Math.random()*stuffToSay.length)];
     message.channel.send(randMessage);
+
+    getAnswer(message.content);
 }
 
 async function helpHandler(message: Message): Promise<void> {

@@ -1,38 +1,38 @@
-import { existsSync, readFileSync } from 'fs';
-import { join as joinPath } from 'path';
+import * as path from 'path';
 
-const { Compute } = require('google-auth-library');
+const GoogleAssistant: any = require('google-assistant');
 
-const confFilePath = joinPath(__dirname, '..', 'conf', 'conf.json');
-if (!existsSync(confFilePath)) {
-    console.error('Conf file does not exist.');
-    process.exit(1);
+const assistant = new GoogleAssistant({
+    keyFilePath: path.join(__dirname, '..', 'conf', 'conf.json');
+    savedTokensPath: path.join(__dirname, '..', 'tokens', 'tokens.json'),
+});
+
+function startConversation(conversation: any) {
+    conversation
+        .on('response', (text: string) => {
+            console.log('Assistant Response:', text);
+            conversation.end();
+        })
+        .on('ended', (error: any, continueConversation: any) => {
+            if (error) {
+                console.log('Conversation Ended Error:', error);
+            }
+            else {
+                console.log('Conversation Complete');
+                conversation.end();
+            }
+        })
+        .on('error', (error: Error) => {
+            console.log('Conversation Error:', error);
+        });
+};
+
+export function getAnswer(query: string) {
+    assistant.start({
+        lang: 'es-ES',
+        textQuery: query,
+        screen: {
+            isOn: true
+        }
+    }, startConversation);
 }
-
-const conf = JSON.parse(readFileSync(confFilePath, 'utf8'));
-
-class Assistant {
-    constructor(
-        private _projectId: string
-    ) {
-
-    }
-
-    async login() {
-        this._client = new Compute({});
-        const url = `https://embeddedassistant.googleapis.com`;
-        const res = await this._client.request({ url });
-        console.log(res);
-    }
-
-    test() {
-        return Math.random();
-    }
-
-    private _client: any;
-}
-
-const assistant = new Assistant(conf.projectId);
-assistant.login();
-
-export { assistant };
