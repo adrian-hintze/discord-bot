@@ -170,6 +170,10 @@ client.login(token)
     });
 
 async function mentionHandler(message: Message): Promise<void> {
+    if (!conversationMappings.length) {
+        return;
+    }
+
     const { author } = message;
     const randMessage = conversationMappings[Math.floor(Math.random()*conversationMappings.length)];
     message.channel.send(`${author} ${randMessage}`, {
