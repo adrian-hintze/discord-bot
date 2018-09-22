@@ -6,26 +6,20 @@ import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.
 import { sync as mkdirSync } from 'mkdirp';
 import { isWebUri } from 'valid-url';
 
-import { getAnswer } from './Assistant';
+import { appConfService, DiscordConf } from 'services/app-conf.service';
 
 interface Mapping {
     [key: string]: string
 }
 
 const writeFileAsync = promisify(writeFile);
+const conf: DiscordConf = appConfService.discordConf;
 
-const confFilePath = joinPath(__dirname, '..', 'conf', 'conf.json');
-if (!existsSync(confFilePath)) {
-    console.error('Conf file does not exist.');
-    process.exit(1);
-}
-const conf = JSON.parse(readFileSync(confFilePath, 'utf8'));
-const token = conf.key;
-
-const mappingsDirPath = joinPath(__dirname, '..', 'mappings');
+// Mappings dir
+const mapsDirPath = joinPath(__dirname, '..', 'mappings');
 try {
-    if (!existsSync(mappingsDirPath)) {
-        mkdirSync(mappingsDirPath);
+    if (!existsSync(mapsDirPath)) {
+        mkdirSync(mapsDirPath);
     }
 }
 catch (error) {
@@ -33,32 +27,38 @@ catch (error) {
     process.exit(1);
 }
 
-const imgMappingsFilePath = joinPath(mappingsDirPath, 'img.json');
+// URL mapping file
+const urlMapFilename: string = 'url.json';
+const urlMapFilePath = joinPath(mapsDirPath, urlMapFilename);
 try {
-    if (!existsSync(imgMappingsFilePath)) {
-        writeFileSync(imgMappingsFilePath, JSON.stringify({}), 'utf8');
+    if (!existsSync(urlMapFilePath)) {
+        writeFileSync(urlMapFilePath, JSON.stringify({}), 'utf8');
     }
 }
 catch (error) {
     console.error('I/O error img mappings file.', error);
     process.exit(1);
 }
-const imgMappings: Mapping = JSON.parse(readFileSync(imgMappingsFilePath, 'utf8'));
+const urlMap: Mapping = JSON.parse(readFileSync(urlMapFilePath, 'utf8'));
 
-const conversationMappingsFilePath = joinPath(mappingsDirPath, 'conversation.json');
+// Conversation mapping file
+const conversationMapFilename: string = 'conversation.json';
+const conversationMapFilePath = joinPath(mapsDirPath, 'conversation.json');
 try {
-    if (!existsSync(conversationMappingsFilePath)) {
-        writeFileSync(conversationMappingsFilePath, JSON.stringify([]), 'utf8');
+    if (!existsSync(conversationMapFilePath)) {
+        writeFileSync(conversationMapFilePath, JSON.stringify([]), 'utf8');
     }
 }
 catch (error) {
     console.error('I/O error conversation mappings file.', error);
     process.exit(1);
 }
-const conversationMappings: Array<string> = JSON.parse(readFileSync(conversationMappingsFilePath, 'utf8'));
+const conversationMap: Array<string> = JSON.parse(readFileSync(conversationMapFilePath, 'utf8'));
 
 
+// BOT
 const client: Client = new Client();
+
 client.on('ready', () => {
     console.log('My body is ready!');
 
@@ -75,7 +75,7 @@ client.on('ready', () => {
     */
 });
 
-client.on('message', async (message) => {
+client.on('message', async (message: Message) => {
     const content: string = message.content;
 
     const mentionsCortana: boolean = !!message.mentions.users.get(client.user.id);
@@ -99,7 +99,7 @@ client.on('message', async (message) => {
         return;
     }
 
-    if (content.startsWith('/delete-img')) {
+    if (content.startsWith('/delete')) {
         try {
             await deleteImgHandler(message);
         }
@@ -149,7 +149,7 @@ client.on('message', async (message) => {
         return;
     }
 
-    if (content.startsWith('/update-img')) {
+    if (content.startsWith('/update')) {
         try {
             await updateImgHandler(message);
         }
@@ -162,7 +162,7 @@ client.on('message', async (message) => {
     try {
         if (content.startsWith('/')) {
             const key = content.toLowerCase().substring(1, content.length);
-            const url = imgMappings[key];
+            const url = urlMap[key];
             if (url) {
                 const author: User = message.author;
                 await message.channel.send(`${author} ${url}`);
@@ -176,7 +176,7 @@ client.on('message', async (message) => {
     }
 });
 
-client.login(token)
+client.login(conf.token)
     .then(() => console.log('Bot logged in successfully.'))
     .catch((error) => {
         console.error('Error logging in.', error);
@@ -184,34 +184,32 @@ client.login(token)
     });
 
 async function mentionHandler(message: Message): Promise<void> {
-    if (!conversationMappings.length) {
+    if (!conversationMap.length) {
         return;
     }
 
     const { author } = message;
-    const randMessage = conversationMappings[Math.floor(Math.random()*conversationMappings.length)];
+    const randMessage = conversationMap[Math.floor(Math.random()*conversationMap.length)];
     message.channel.send(`${author} ${randMessage}`, {
         tts: true
     });
-
-    //getAnswer(message.content);
 }
 
 async function deleteImgHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
     if (parts.length !== 2) {
-        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
         return;
     }
 
     const key: string = parts[1].trim();
-    if (imgMappings[key]) {
-        delete imgMappings[key];
+    if (urlMap[key]) {
+        delete urlMap[key];
     }
 
-    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
-    await message.channel.send(`${author} Ok, pero ni se te ocurra borrarme a mi.`);
+    await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
+    await message.channel.send(`${author} Ok, he borrado ${key}, pero ni se te ocurra borrarme a mi.`);
     await message.delete();
 }
 
@@ -220,7 +218,7 @@ async function helpHandler(message: Message): Promise<void> {
         return;
     }
 
-    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list img - Get a list of all available images\n/save <name> <url> - Save a new image\n/update-img <name> <url> - Update an existing image\n/delete-img <name> - Delete an existing image\n`)
+    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list - Get a list of all available urls\n/save <name> <url> - Save a new url\n/update <name> <url> - Update an existing url\n/delete <name> - Delete an existing url\n`)
 }
 
 async function infoHandler(message: Message): Promise<void> {
@@ -228,32 +226,24 @@ async function infoHandler(message: Message): Promise<void> {
 }
 
 async function listHandler(message: Message): Promise<void> {
-    const { author, content } = message;
-    const parts: Array<string> = content.split(/[ ]+/);
-    if (parts.length !== 2) {
-        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
-        return;
+    const keys: Array<string> = [];
+    for (let key in urlMap) {
+        keys.push(key);
     }
 
-    const param: string = parts[1].trim();
-    switch (param) {
-        case 'img':
-            let responseContents: string = '\nEsto es lo que te puedo enseñar:\n';
-            for (let key in imgMappings) {
-                responseContents += `${key}\n`;
-            }
-            await message.channel.send(`${author} ${responseContents}`);
-            return;
-        default:
-            await message.channel.send(`${author} ¿Porqué no pruebas con algo bonito como: img?`);
-    }
+    keys.sort((a, b) => a < b ? 1 : -1);
+
+    let responseContent: string = '\nEsto es lo que te puedo enseñar:';
+    keys.forEach(key => responseContent += `\n${key}`);
+
+    await message.channel.send(`${message.author} ${responseContent}`);
 }
 
 async function saveHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
     if (parts.length !== 3) {
-        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
         return;
     }
 
@@ -264,13 +254,13 @@ async function saveHandler(message: Message): Promise<void> {
     }
 
     const key: string = parts[1].trim();
-    if (imgMappings[key]) {
-        await message.channel.send(`${author} Pfff, ${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
+    if (urlMap[key]) {
+        await message.channel.send(`${author} Pfff, ¿${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
         return;
     }
 
-    imgMappings[key] = url;
-    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
+    urlMap[key] = url;
+    await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
     await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
     await message.delete();
 }
@@ -279,7 +269,7 @@ async function updateImgHandler(message: Message): Promise<void> {
     const { author, content } = message;
     const parts: Array<string> = content.split(/[ ]+/);
     if (parts.length !== 3) {
-        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
         return;
     }
 
@@ -290,14 +280,14 @@ async function updateImgHandler(message: Message): Promise<void> {
     }
 
     const key: string = parts[1].trim();
-    if (!imgMappings[key]) {
+    if (!urlMap[key]) {
         await message.channel.send(`${author} ¿Cómo quieres que cambie algo que no existe?`);
         return;
     }
 
-    imgMappings[key] = url;
-    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
-    await message.channel.send(`${author} Ok, pero aclárate en el futuro.`);
+    urlMap[key] = url;
+    await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
+    await message.channel.send(`${author} Ok, he actualizado ${key}, pero aclárate en el futuro.`);
     await message.delete();
 }
 
@@ -311,23 +301,16 @@ async function debugHandler(message: Message): Promise<void> {
 
     const param: string = parts[1].trim();
     switch (param) {
-        case 'download-img-file':
-            await message.channel.send('img.json', {
-                files: [imgMappingsFilePath]
+        case 'download-url-file':
+            await message.channel.send(urlMapFilename, {
+                files: [urlMapFilePath]
             });
             return;
-        case 'download-converstion-file':
-            await message.channel.send('img.json', {
-                files: [conversationMappingsFilePath]
+        case 'download-conversation-file':
+            await message.channel.send(conversationMapFilename, {
+                files: [conversationMapFilePath]
             });
             return;
-        /*
-        case 'conv':
-            conversationMappings.push(parts[2].trim());
-            await writeFileAsync(imgMappingsFilePath, JSON.stringify(conversationMappings), 'utf8');
-            await message.channel.send(`${author} Done.`);
-            return;
-        */
         default:
             await message.channel.send(`Unknown command ${param}.`);
     }

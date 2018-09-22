@@ -1,13 +1,19 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es6",
-        "lib": [ "es6" ],
-        "outDir": "./build/bot/",
-        "rootDir": "./src/",
-        "strict": true
+        "target": "es2017",
+        "rootDir": "src/",
+        "outDir": "build/bot/",
+        "sourceMap": true,
+        "strict": true,
+        "newLine": "LF",
+        "baseUrl": "src/",
+        "paths": {
+            "services/*": [ "services/*" ]
+        }
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "build"
     ]
 }

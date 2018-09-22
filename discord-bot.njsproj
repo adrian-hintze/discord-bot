@@ -35,7 +35,6 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include=".gitignore" />
-    <Content Include="build\conf\auth.json" />
     <Content Include="build\conf\conf.json" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
@@ -45,13 +44,11 @@
   <ItemGroup>
     <Folder Include="build\" />
     <Folder Include="build\conf\" />
-    <Folder Include="build\mappings\" />
     <Folder Include="src\" />
+    <Folder Include="src\services\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="src\Assistant.ts">
-      <SubType>Code</SubType>
-    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\services\app-conf.service.ts" />
     <TypeScriptCompile Include="src\Main.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
