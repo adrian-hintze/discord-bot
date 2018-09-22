@@ -37,8 +37,9 @@ class AppConfService {
     }
 }
 
+const confFilePath: string = join('..', '..', 'conf', 'conf.json');
 try {
-    require(join('..', 'conf', 'conf.json')); 
+    require(confFilePath);
 }
 catch (error) {
     console.error('Error reading conf file.', error);
@@ -46,6 +47,5 @@ catch (error) {
 }
 
 const confFileName = 'conf.json';
-const confFilePath = join('..', 'conf', confFileName);
 const confFileContents = require(confFilePath); 
 export const appConfService: AppConfService = AppConfService.fromConfigurationFile(confFileContents);
