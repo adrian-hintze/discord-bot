@@ -99,6 +99,16 @@ client.on('message', async (message) => {
         return;
     }
 
+    if (content.startsWith('/delete-img')) {
+        try {
+            await deleteImgHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
     if (content.startsWith('/help')) {
         try {
             await helpHandler(message);
@@ -139,6 +149,16 @@ client.on('message', async (message) => {
         return;
     }
 
+    if (content.startsWith('/update-img')) {
+        try {
+            await updateImgHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
     try {
         if (content.startsWith('/')) {
             const key = content.toLowerCase().substring(1, content.length);
@@ -154,12 +174,6 @@ client.on('message', async (message) => {
     catch (error) {
         console.error('Something happened.', error);
     }
-
-    /*
-    message.channel.send(`To' fresca la frutita.`, {
-        tts: true
-    });
-    */
 });
 
 client.login(token)
@@ -181,6 +195,24 @@ async function mentionHandler(message: Message): Promise<void> {
     });
 
     //getAnswer(message.content);
+}
+
+async function deleteImgHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        return;
+    }
+
+    const key: string = parts[1].trim();
+    if (imgMappings[key]) {
+        delete imgMappings[key];
+    }
+
+    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
+    await message.channel.send(`${author} Ok, pero ni se te ocurra borrarme a mi.`);
+    await message.delete();
 }
 
 async function helpHandler(message: Message): Promise<void> {
@@ -240,6 +272,32 @@ async function saveHandler(message: Message): Promise<void> {
     imgMappings[key] = url;
     await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
     await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
+    await message.delete();
+}
+
+async function updateImgHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 3) {
+        await message.channel.send(`${author} Háblame bien. #NoEsNo http://www.radiopineda.cat/sites/default/files/field/image/noesno.jpg`);
+        return;
+    }
+
+    const url: string = parts[2].trim();
+    if (!isWebUri(url)) {
+        await message.channel.send(`${author} ¿Qué quieres que haga con esto? Dame una URL y te daré algo mejor a cambio... 🍑`);
+        return;
+    }
+
+    const key: string = parts[1].trim();
+    if (!imgMappings[key]) {
+        await message.channel.send(`${author} ¿Cómo quieres que cambie algo que no existe?`);
+        return;
+    }
+
+    imgMappings[key] = url;
+    await writeFileAsync(imgMappingsFilePath, JSON.stringify(imgMappings), 'utf8');
+    await message.channel.send(`${author} Ok, pero aclárate en el futuro.`);
     await message.delete();
 }
 
