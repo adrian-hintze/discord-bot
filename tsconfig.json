@@ -6,11 +6,7 @@
         "outDir": "build/bot/",
         "sourceMap": true,
         "strict": true,
-        "newLine": "LF",
-        "baseUrl": "src/",
-        "paths": {
-            "services/*": [ "services/*" ]
-        }
+        "newLine": "LF"
     },
     "exclude": [
         "node_modules",

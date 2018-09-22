@@ -6,7 +6,7 @@ import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.
 import { sync as mkdirSync } from 'mkdirp';
 import { isWebUri } from 'valid-url';
 
-import { appConfService, DiscordConf } from 'services/app-conf.service';
+import { appConfService, DiscordConf } from './services/app-conf.service';
 
 interface Mapping {
     [key: string]: string
