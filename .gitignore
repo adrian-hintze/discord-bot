@@ -1,10 +1,7 @@
 ## Project ##
 
 node_modules/
-build/bot/
-build/conf/*
-build/mappings/
-build/tokens/
+build/
 
 ## VS ##
 

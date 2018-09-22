@@ -16,7 +16,8 @@ const writeFileAsync = promisify(writeFile);
 const conf: DiscordConf = appConfService.discordConf;
 
 // Mappings dir
-const mapsDirPath = joinPath(__dirname, '..', 'mappings');
+const mapsDirname: string = 'maps';
+const mapsDirPath = joinPath(__dirname, '..', mapsDirname);
 try {
     if (!existsSync(mapsDirPath)) {
         mkdirSync(mapsDirPath);
