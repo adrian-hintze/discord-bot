@@ -220,7 +220,7 @@ async function helpHandler(message: Message): Promise<void> {
         return;
     }
 
-    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list img - Get a list of all available images\n/save <name> <url> - Save a new image\n/update-img <name> <url>\n/delete-img <name>\n`)
+    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list img - Get a list of all available images\n/save <name> <url> - Save a new image\n/update-img <name> <url> - Update an existing image\n/delete-img <name> - Delete an existing image\n`)
 }
 
 async function infoHandler(message: Message): Promise<void> {
