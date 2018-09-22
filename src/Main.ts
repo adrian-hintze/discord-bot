@@ -219,7 +219,8 @@ async function helpHandler(message: Message): Promise<void> {
         return;
     }
 
-    await message.channel.send(`/help - Show this help\n/info - Get some basic info about me\n/list - Get a list of all available urls\n/save <name> <url> - Save a new url\n/update <name> <url> - Update an existing url\n/delete <name> - Delete an existing url\n`)
+    await message.channel.send(`${message.author}\n/help - Show this help\n/info - Get some basic info about me\n/list - Get a list of all available urls\n/save <name> <url> - Save a new url\n/update <name> <url> - Update an existing url\n/delete <name> - Delete an existing url\n`)
+    await message.delete();
 }
 
 async function infoHandler(message: Message): Promise<void> {
@@ -232,12 +233,13 @@ async function listHandler(message: Message): Promise<void> {
         keys.push(key);
     }
 
-    keys.sort((a, b) => a < b ? 1 : -1);
+    keys.sort((a, b) => a < b ? -1 : 1);
 
     let responseContent: string = '\nEsto es lo que te puedo enseñar:';
     keys.forEach(key => responseContent += `\n${key}`);
 
     await message.channel.send(`${message.author} ${responseContent}`);
+    await message.delete();
 }
 
 async function saveHandler(message: Message): Promise<void> {
