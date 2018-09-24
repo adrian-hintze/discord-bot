@@ -2,13 +2,21 @@ import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
 import { join as joinPath } from 'path';
 import { promisify } from 'util';
 
-import { Client, Guild, GuildMember, TextChannel, User, Message } from 'discord.js';
 import { sync as mkdirSync } from 'mkdirp';
 import { isWebUri } from 'valid-url';
+import {
+    Client,
+    Collection,
+    Emoji,
+    Guild,
+    GuildMember,
+    Message,
+    User
+} from 'discord.js';
 
 import { appConfService, DiscordConf } from './services/app-conf.service';
 
-interface Mapping {
+interface MapFile {
     [key: string]: string
 }
 
@@ -28,33 +36,33 @@ catch (error) {
     process.exit(1);
 }
 
+function getMappingFileContentsSync(path:string, defaultContents: any): MapFile | Array<string> {
+    try {
+        if (!existsSync(path)) {
+            writeFileSync(path, JSON.stringify(defaultContents), 'utf8');
+        }
+    }
+    catch (error) {
+        console.error('I/O error img mappings file.', error);
+        process.exit(1);
+    }
+    return JSON.parse(readFileSync(path, 'utf8'));
+}
+
 // URL mapping file
 const urlMapFilename: string = 'url.json';
-const urlMapFilePath = joinPath(mapsDirPath, urlMapFilename);
-try {
-    if (!existsSync(urlMapFilePath)) {
-        writeFileSync(urlMapFilePath, JSON.stringify({}), 'utf8');
-    }
-}
-catch (error) {
-    console.error('I/O error img mappings file.', error);
-    process.exit(1);
-}
-const urlMap: Mapping = JSON.parse(readFileSync(urlMapFilePath, 'utf8'));
+const urlMapFilePath: string = joinPath(mapsDirPath, urlMapFilename);
+const urlMap: MapFile = <MapFile>getMappingFileContentsSync(urlMapFilePath, {});
+
+// Emoji mapping file
+const emojiMapFilename: string = 'emoji.json';
+const emojiMapFilePath: string = joinPath(mapsDirPath, emojiMapFilename);
+const emojiMap: MapFile = <MapFile>getMappingFileContentsSync(emojiMapFilePath, {});
 
 // Conversation mapping file
 const conversationMapFilename: string = 'conversation.json';
-const conversationMapFilePath = joinPath(mapsDirPath, 'conversation.json');
-try {
-    if (!existsSync(conversationMapFilePath)) {
-        writeFileSync(conversationMapFilePath, JSON.stringify([]), 'utf8');
-    }
-}
-catch (error) {
-    console.error('I/O error conversation mappings file.', error);
-    process.exit(1);
-}
-const conversationMap: Array<string> = JSON.parse(readFileSync(conversationMapFilePath, 'utf8'));
+const conversationMapFilePath: string = joinPath(mapsDirPath, conversationMapFilename);
+const conversationMap: Array<string> = <Array<string>>getMappingFileContentsSync(conversationMapFilePath, []);
 
 
 // BOT
@@ -219,7 +227,17 @@ async function helpHandler(message: Message): Promise<void> {
         return;
     }
 
-    await message.channel.send(`${message.author}\n/help - Show this help\n/info - Get some basic info about me\n/list - Get a list of all available urls\n/save <name> <url> - Save a new url\n/update <name> <url> - Update an existing url\n/delete <name> - Delete an existing url\n`)
+    const helpMessage: Array<string> = [
+        '',
+        '/help - Show this help',
+        '/info - Get some basic info about me',
+        '/list <param> - Get a list of all available elements: url, emoji',
+        '/save <name> <url> - Save a new url',
+        '/update <name> <url> - Update an existing url',
+        '/delete <name> - Delete an existing url'
+    ];
+
+    await message.channel.send(`${message.author} ${helpMessage.join('\n')}`)
     await message.delete();
 }
 
@@ -228,18 +246,45 @@ async function infoHandler(message: Message): Promise<void> {
 }
 
 async function listHandler(message: Message): Promise<void> {
-    const keys: Array<string> = [];
-    for (let key in urlMap) {
-        keys.push(key);
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
+        return;
     }
 
-    keys.sort((a, b) => a < b ? -1 : 1);
+    const param: string = parts[1];
+    let responseContent: string = '\n';
+    const names: Array<string> = [];
+    switch (param) {
+        case 'url':
+            for (let key in urlMap) {
+                names.push(key);
+            }
 
-    let responseContent: string = '\nEsto es lo que te puedo enseñar:';
-    keys.forEach(key => responseContent += `\n${key}`);
+            names.sort((a, b) => a < b ? -1 : 1);
 
-    await message.channel.send(`${message.author} ${responseContent}`);
-    await message.delete();
+            responseContent += 'Esto es lo que te puedo enseñar:';
+            names.forEach(key => responseContent += `\n${key}`);
+
+            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.delete();
+            return;
+        case 'emoji':
+            const guild: Guild = message.guild;
+            const emojis: Collection<string, Emoji> = guild.emojis;
+            emojis.forEach(e => names.push(e.name));
+
+            names.sort((a, b) => a < b ? -1 : 1);
+
+            responseContent += 'Estos son los emoji disponibles:';
+            names.forEach(key => responseContent += `\n${key}`);
+
+            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.delete();
+        default:
+            await message.channel.send(`${author} Porque no pruebas con: url, emoji.`);
+    }
 }
 
 async function saveHandler(message: Message): Promise<void> {

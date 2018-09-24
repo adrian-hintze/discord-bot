@@ -36,6 +36,7 @@
     <Content Include=".editorconfig" />
     <Content Include=".gitignore" />
     <Content Include="build\conf\conf.json" />
+    <Content Include="LICENSE" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
