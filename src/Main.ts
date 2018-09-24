@@ -318,6 +318,10 @@ async function listHandler(message: Message): Promise<void> {
             return;
         case 'emoji':
             const guild: Guild = message.guild;
+            if (!guild) {
+                return;
+            }
+
             const emojis: Collection<string, Emoji> = guild.emojis;
             emojis.forEach(e => names.push(`${e.name} - ${e.toString()}`));
 
