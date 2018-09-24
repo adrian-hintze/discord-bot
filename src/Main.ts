@@ -301,7 +301,7 @@ async function listHandler(message: Message): Promise<void> {
 
     const param: string = parts[1];
     let responseContent: string = '\n';
-    const names: Array<string> = [];
+    const names: Array<string> = [''];
     switch (param) {
         case 'url':
             for (let key in urlMap) {
@@ -311,7 +311,7 @@ async function listHandler(message: Message): Promise<void> {
             names.sort((a, b) => a < b ? -1 : 1);
 
             responseContent += 'Esto es lo que te puedo enseñar:';
-            names.forEach(key => responseContent += `\n${key}`);
+            responseContent += names.join('\n');
 
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
@@ -319,12 +319,12 @@ async function listHandler(message: Message): Promise<void> {
         case 'emoji':
             const guild: Guild = message.guild;
             const emojis: Collection<string, Emoji> = guild.emojis;
-            emojis.forEach(e => names.push(e.name));
+            emojis.forEach(e => names.push(`${e.name} - ${e.toString()}`));
 
             names.sort((a, b) => a < b ? -1 : 1);
 
             responseContent += 'Estos son los emoji disponibles:';
-            names.forEach(key => responseContent += `\n${key}`);
+            responseContent += names.join('\n');
 
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
