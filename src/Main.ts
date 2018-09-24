@@ -407,7 +407,7 @@ async function debugHandler(message: Message): Promise<void> {
             });
             return;
         case 'download-emoji-file':
-            await message.channel.send(conversationMapFilename, {
+            await message.channel.send(emojiMapFilename, {
                 files: [emojiMapFilePath]
             });
             return;
