@@ -251,6 +251,7 @@ async function emojiHandler(message: Message): Promise<void> {
             await writeFileAsync(emojiMapFilePath, JSON.stringify(emojiMap), 'utf8');
             await message.channel.send(`${message.author} Emojis memorizados.`);
             await message.delete();
+            return;
         case 'sync':
             await message.channel.send(`${message.author} Not implemented, lol.`);
             return;
