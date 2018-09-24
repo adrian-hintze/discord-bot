@@ -57,7 +57,7 @@ const urlMap: MapFile = <MapFile>getMappingFileContentsSync(urlMapFilePath, {});
 // Emoji mapping file
 const emojiMapFilename: string = 'emoji.json';
 const emojiMapFilePath: string = joinPath(mapsDirPath, emojiMapFilename);
-const emojiMap: MapFile = <MapFile>getMappingFileContentsSync(emojiMapFilePath, {});
+let emojiMap: MapFile = <MapFile>getMappingFileContentsSync(emojiMapFilePath, {});
 
 // Conversation mapping file
 const conversationMapFilename: string = 'conversation.json';
@@ -111,6 +111,16 @@ client.on('message', async (message: Message) => {
     if (content.startsWith('/delete')) {
         try {
             await deleteImgHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/emoji')) {
+        try {
+            await emojiHandler(message);
         }
         catch (error) {
             console.error('Something happened.', error);
@@ -222,6 +232,41 @@ async function deleteImgHandler(message: Message): Promise<void> {
     await message.delete();
 }
 
+async function emojiHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
+        return;
+    }
+
+    const param: string = parts[1].trim();
+    const guild: Guild = message.guild;
+    const emojis: Collection<string, Emoji> = guild.emojis;
+    switch (param) {
+        case 'init':
+            emojiMap = {};
+            emojis.forEach(e => emojiMap[e.name] = e.url);
+
+            await writeFileAsync(emojiMapFilePath, JSON.stringify(emojiMap), 'utf8');
+            await message.channel.send(`${message.author} Emojis memorizados.`);
+            await message.delete();
+        case 'sync':
+            await message.channel.send(`${message.author} Not implemented, lol.`);
+            return;
+        default:
+            await message.channel.send(`${author} Porque no pruebas con: init, sync.`);
+    }
+
+    if (urlMap[param]) {
+        delete urlMap[param];
+    }
+
+    await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
+    await message.channel.send(`${author} Ok, he borrado ${param}, pero ni se te ocurra borrarme a mi.`);
+    await message.delete();
+}
+
 async function helpHandler(message: Message): Promise<void> {
     if (message.author.id === client.user.id) {
         return;
@@ -282,6 +327,7 @@ async function listHandler(message: Message): Promise<void> {
 
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
+            return;
         default:
             await message.channel.send(`${author} Porque no pruebas con: url, emoji.`);
     }
@@ -357,6 +403,11 @@ async function debugHandler(message: Message): Promise<void> {
         case 'download-conversation-file':
             await message.channel.send(conversationMapFilename, {
                 files: [conversationMapFilePath]
+            });
+            return;
+        case 'download-emoji-file':
+            await message.channel.send(conversationMapFilename, {
+                files: [emojiMapFilePath]
             });
             return;
         default:
