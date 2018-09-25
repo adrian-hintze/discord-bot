@@ -185,15 +185,7 @@ client.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
 
-                await message.channel.send(`${author} - ${key}`, {
-                    embed: {
-                        video: {
-                            url,
-                            height: 100,
-                            width: 100
-                        }
-                    }
-                });
+                await message.channel.send(`${author} - ${url}`);
                 await message.delete();
             }
             return;
