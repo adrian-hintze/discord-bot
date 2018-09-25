@@ -187,9 +187,10 @@ client.on('message', async (message: Message) => {
 
                 await message.channel.send(`${author} - ${key}`, {
                     embed: {
-                        url,
                         video: {
-                            url
+                            url,
+                            height: 100,
+                            width: 100
                         }
                     }
                 });
