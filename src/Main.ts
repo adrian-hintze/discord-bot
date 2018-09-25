@@ -187,9 +187,7 @@ client.on('message', async (message: Message) => {
 
                 await message.channel.send(`${author} - ${key}`, {
                     embed: {
-                        image: {
-                            url
-                        }
+                        url
                     }
                 });
                 await message.delete();
