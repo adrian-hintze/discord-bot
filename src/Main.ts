@@ -305,7 +305,7 @@ async function listHandler(message: Message): Promise<void> {
     switch (param) {
         case 'url':
             for (let key in urlMap) {
-                names.push(key);
+                names.push(`${key} - <${urlMap[key]}>`);
             }
 
             names.sort((a, b) => a < b ? -1 : 1);
