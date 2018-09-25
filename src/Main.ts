@@ -185,7 +185,14 @@ client.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
 
-                await message.channel.send(`${author} - ${url}`);
+                //await message.channel.send(`${author} - ${key}`);
+                await message.channel.send(`${author} - ${key}`, {
+                    embed: {
+                        image: {
+                            url
+                        }
+                    }
+                });
                 await message.delete();
             }
             return;
