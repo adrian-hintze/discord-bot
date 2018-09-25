@@ -184,7 +184,14 @@ client.on('message', async (message: Message) => {
             const url = urlMap[key];
             if (url) {
                 const author: User = message.author;
-                await message.channel.send(`${author} ${url}`);
+
+                await message.channel.send(`${author} - ${key}`, {
+                    embed: {
+                        image: {
+                            url
+                        }
+                    }
+                });
                 await message.delete();
             }
             return;
