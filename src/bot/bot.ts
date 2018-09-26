@@ -281,7 +281,7 @@ async function emojiHandler(message: Message): Promise<void> {
             const downloadPromises: Array<Promise<void>> = emojis.map((emoji: Emoji) => {
                 const { name, url } = emoji;
                 const imgName: string = `${name}${extname(url)}`;
-                let localUrl: string = resolveUrl(serverConf.domain, 'emoji');
+                let localUrl: string = resolveUrl(serverConf.domain, '/emoji/');
                 localUrl = resolveUrl(localUrl, imgName);
 
                 emojiMap[name] = {
