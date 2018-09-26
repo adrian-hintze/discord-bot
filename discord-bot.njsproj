@@ -46,9 +46,15 @@
     <Folder Include="build\" />
     <Folder Include="build\conf\" />
     <Folder Include="src\" />
+    <Folder Include="src\bot\" />
+    <Folder Include="src\server\" />
     <Folder Include="src\services\" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="src\bot\bot.ts" />
+    <TypeScriptCompile Include="src\server\server.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="src\services\app-conf.service.ts" />
     <TypeScriptCompile Include="src\Main.ts" />
   </ItemGroup>

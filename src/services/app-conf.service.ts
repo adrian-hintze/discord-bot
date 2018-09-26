@@ -4,10 +4,16 @@ export interface DiscordConf {
     token: string;
 }
 
+export interface ServerConf {
+    domain: string;
+    port: number;
+}
+
 class AppConfService {
     static fromConfigurationFile(conf: any): AppConfService {
         const {
-            discord: discordConf
+            discord: discordConf,
+            server: serverConf
         } = conf;
 
         // DiscordConf
@@ -20,18 +26,37 @@ class AppConfService {
         } = <DiscordConf>discordConf;
 
         if (!token) {
-            throw new Error('DB configuration is missing parameters. The following need to exist: token.');
+            throw new Error('Discord configuration is missing parameters. The following need to exist: token.');
         }
 
-        return new AppConfService(discordConf);
+        // ServerConf
+        if (!serverConf) {
+            throw new Error('Discord configuration missing in file.');
+        }
+
+        const {
+            domain,
+            port
+        } = <ServerConf>serverConf;
+
+        if (!domain || !port) {
+            throw new Error('Server configuration is missing parameters. The following need to exist: domain, port.');
+        }
+
+        return new AppConfService(discordConf, serverConf);
     }
 
     get discordConf(): DiscordConf {
         return this._discordConf;
     }
 
+    get serverConf(): ServerConf {
+        return this._serverConf;
+    }
+
     private constructor(
-        private _discordConf: DiscordConf
+        private _discordConf: DiscordConf,
+        private _serverConf: ServerConf
     ) {
 
     }
