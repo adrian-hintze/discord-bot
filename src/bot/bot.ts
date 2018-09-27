@@ -12,6 +12,7 @@ import {
     Guild,
     GuildMember,
     Message,
+    TextChannel,
     User
 } from 'discord.js';
 
@@ -301,7 +302,26 @@ async function emojiHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         case 'sync':
-            await message.channel.send(`${message.author} Not implemented, lol.`);
+            const promises: Array<Promise<void>> = bot.guilds.map(async (guild) => {
+                const emojis: Collection<string, Emoji> = guild.emojis;
+                const deleteEmojiPromises: Array<Promise<void>> = emojis.map(e => guild.deleteEmoji(e));
+                await Promise.all(deleteEmojiPromises);
+
+                const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
+                    const [key, value] = entry;
+                    return guild.createEmoji(value.discordUrl, key);
+                });
+                await Promise.all(createEmojiPromises);
+            });
+            await Promise.all(promises);
+
+            const nono: Emoji = message.guild.emojis.find(e => e.name === 'nono');
+            if (!nono) {
+                return;
+            }
+
+            await message.channel.send(`${message.author} Si se han perdido todos los emoji no es mi culpa. ${nono.toString()}`);
+            await message.delete();
             return;
         default:
             await message.channel.send(`${author} Porque no pruebas con: init, sync.`);
