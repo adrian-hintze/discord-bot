@@ -311,7 +311,7 @@ async function emojiHandler(message: Message): Promise<void> {
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
-                        return guild.createEmoji(value.discordUrl, key);
+                        return guild.createEmoji(value.localUrl, key);
                     });
                     await Promise.all(createEmojiPromises);
                 }
@@ -399,6 +399,20 @@ async function listHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         case 'emoji':
+            Object.entries(emojiMap).forEach((entry) => {
+                const [key, value] = entry;
+                names.push(`${key} - <${value.localUrl}>`);
+            });
+
+            names.sort((a, b) => a < b ? -1 : 1);
+
+            responseContent += 'Estos son los emoji disponibles para sincronizar:';
+            responseContent += names.join('\n');
+
+            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.delete();
+            return;
+        case 'server-emoji':
             const guild: Guild = message.guild;
             if (!guild) {
                 return;
@@ -409,14 +423,14 @@ async function listHandler(message: Message): Promise<void> {
 
             names.sort((a, b) => a < b ? -1 : 1);
 
-            responseContent += 'Estos son los emoji disponibles:';
+            responseContent += 'Estos son los emoji disponibles en el servidor:';
             responseContent += names.join('\n');
 
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
             return;
         default:
-            await message.channel.send(`${author} Porque no pruebas con: url, emoji.`);
+            await message.channel.send(`${author} Porque no pruebas con: url, emoji, server-emoji.`);
     }
 }
 
