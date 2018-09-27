@@ -303,15 +303,23 @@ async function emojiHandler(message: Message): Promise<void> {
             return;
         case 'sync':
             const promises: Array<Promise<void>> = bot.guilds.map(async (guild) => {
-                const emojis: Collection<string, Emoji> = guild.emojis;
-                const deleteEmojiPromises: Array<Promise<void>> = emojis.map(e => guild.deleteEmoji(e));
-                await Promise.all(deleteEmojiPromises);
+                try {
+                    const emojis: Collection<string, Emoji> = guild.emojis;
+                    const deleteEmojiPromises: Array<Promise<void>> = emojis.map(e => guild.deleteEmoji(e));
+                    await Promise.all(deleteEmojiPromises);
 
-                const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
-                    const [key, value] = entry;
-                    return guild.createEmoji(value.discordUrl, key);
-                });
-                await Promise.all(createEmojiPromises);
+                    const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
+                        const [key, value] = entry;
+                        return guild.createEmoji(value.discordUrl, key);
+                    });
+                    await Promise.all(createEmojiPromises);
+                }
+                catch (e) {
+                    console.error(`Error syncing guild: ${guild.id}.`);
+                }
+                finally {
+                    return;
+                }
             });
             await Promise.all(promises);
 
