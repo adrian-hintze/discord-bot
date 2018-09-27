@@ -302,6 +302,7 @@ async function emojiHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         case 'sync':
+            const failGuilds: Array<string> = [];
             const promises: Array<Promise<void>> = bot.guilds.map(async (guild) => {
                 try {
                     const emojis: Collection<string, Emoji> = guild.emojis;
@@ -315,13 +316,18 @@ async function emojiHandler(message: Message): Promise<void> {
                     await Promise.all(createEmojiPromises);
                 }
                 catch (e) {
-                    console.error(`Error syncing guild: ${guild.id}.`);
+                    console.error(`Error syncing guild: ${guild.name}.`);
+                    failGuilds.push(guild.name);
                 }
                 finally {
                     return;
                 }
             });
             await Promise.all(promises);
+
+            if (failGuilds.length) {
+                await message.channel.send(`${message.author} No he podido sincronizar: ${failGuilds.join(' ')}.`);
+            }
 
             const nono: Emoji = message.guild.emojis.find(e => e.name === 'nono');
             if (!nono) {
