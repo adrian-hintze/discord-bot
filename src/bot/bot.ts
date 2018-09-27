@@ -359,7 +359,7 @@ async function helpHandler(message: Message): Promise<void> {
         '',
         '/help - Show this help',
         '/info - Get some basic info about me',
-        '/list <param> - Get a list of all available elements: url, emoji',
+        '/list <param> - Get a list of all available elements: url, emoji-sync, emoji-server',
         '/save <name> <url> - Save a new url',
         '/update <name> <url> - Update an existing url',
         '/delete <name> - Delete an existing url'
@@ -398,7 +398,7 @@ async function listHandler(message: Message): Promise<void> {
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
             return;
-        case 'emoji':
+        case 'emoji-sync':
             Object.entries(emojiMap).forEach((entry) => {
                 const [key, value] = entry;
                 names.push(`${key} - <${value.localUrl}>`);
@@ -412,7 +412,7 @@ async function listHandler(message: Message): Promise<void> {
             await message.channel.send(`${message.author} ${responseContent}`);
             await message.delete();
             return;
-        case 'server-emoji':
+        case 'emoji-server':
             const guild: Guild = message.guild;
             if (!guild) {
                 return;
@@ -430,7 +430,7 @@ async function listHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         default:
-            await message.channel.send(`${author} Porque no pruebas con: url, emoji, server-emoji.`);
+            await message.channel.send(`${author} Porque no pruebas con: url, emoji-sync, emoji-server.`);
     }
 }
 
