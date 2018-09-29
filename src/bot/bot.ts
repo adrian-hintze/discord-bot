@@ -25,6 +25,7 @@ interface MapFile {
 const writeFileAsync = promisify(writeFile);
 const serverConf: ServerConf = appConfService.serverConf;
 const discordConf: DiscordConf = appConfService.discordConf;
+let synchronizingEmoji: boolean = False;
 
 // Static files
 const staticDirname: string = 'static';
@@ -339,6 +340,14 @@ async function emojiHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         case 'sync':
+            if (synchronizingEmoji) {
+                await message.channel.send(`${message.author} Espérate ansiao que ya estoy sincronizando. /polla1`);
+                await message.delete();
+                return;
+            }
+
+            synchronizingEmoji = true;
+
             console.log('Syncing emojis');
             const failGuilds: Array<string> = [];
             const promises: Array<Promise<void>> = bot.guilds.map(async (guild) => {
@@ -377,6 +386,9 @@ async function emojiHandler(message: Message): Promise<void> {
 
             await message.channel.send(`${message.author} Si se han perdido todos los emoji no es mi culpa. ${nono.toString()}`);
             await message.delete();
+
+            synchronizingEmoji = false;
+
             return;
         default:
             await message.channel.send(`${author} Porque no pruebas con: init, sync.`);
