@@ -353,8 +353,8 @@ async function emojiHandler(message: Message): Promise<void> {
                         const [key, value] = entry;
                         const requestSegments = value.split('/');
                         const filename = requestSegments[requestSegments.length - 1];
-                        console.log(filename);
-                        return guild.createEmoji(joinPath(staticFilesDirPath, filename), key);
+                        console.log(joinPath(staticFilesDirPath, filename));
+                        return guild.createEmoji(joinPath(staticFilesDirPath, 'emoji', filename), key);
                     });
                     await Promise.all(createEmojiPromises);
                     console.log(`Created emojis for guild ${guild.name}.`);
