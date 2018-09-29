@@ -347,16 +347,17 @@ async function emojiHandler(message: Message): Promise<void> {
                     const emojis: Collection<string, Emoji> = guild.emojis;
                     const deleteEmojiPromises: Array<Promise<void>> = emojis.map(e => guild.deleteEmoji(e));
                     await Promise.all(deleteEmojiPromises);
-                    console.log(`Deleted emojis for guild ${guild.name}`);
+                    console.log(`Deleted emojis for guild ${guild.name}.`);
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
                         const requestSegments = value.split('/');
                         const filename = requestSegments[requestSegments.length - 1];
+                        console.log(filename);
                         return guild.createEmoji(joinPath(staticFilesDirPath, filename), key);
                     });
                     await Promise.all(createEmojiPromises);
-                    console.log(`Created emojis for guild ${guild.name}`);
+                    console.log(`Created emojis for guild ${guild.name}.`);
                 }
                 catch (e) {
                     console.error(`Error syncing guild: ${guild.name}.`);
