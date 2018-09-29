@@ -351,7 +351,6 @@ async function emojiHandler(message: Message): Promise<void> {
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
-                        console.log(key, value);
                         return guild.createEmoji(value, key);
                     });
                     await Promise.all(createEmojiPromises);
