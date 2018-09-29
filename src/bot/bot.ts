@@ -25,7 +25,7 @@ interface MapFile {
 const writeFileAsync = promisify(writeFile);
 const serverConf: ServerConf = appConfService.serverConf;
 const discordConf: DiscordConf = appConfService.discordConf;
-let synchronizingEmoji: boolean = False;
+let synchronizingEmoji: boolean = false;
 
 // Static files
 const staticDirname: string = 'static';
