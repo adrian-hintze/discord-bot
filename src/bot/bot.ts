@@ -14,7 +14,7 @@ import {
     User
 } from 'discord.js';
 
-import { appConfService, ServerConf } from '../services/app-conf.service';
+import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.service';
 
 const imageDownloader: any = require('image-downloader');
 
@@ -24,6 +24,7 @@ interface MapFile {
 
 const writeFileAsync = promisify(writeFile);
 const serverConf: ServerConf = appConfService.serverConf;
+const discordConf: DiscordConf = appConfService.discordConf;
 
 // Static files
 const staticDirname: string = 'static';
@@ -107,9 +108,6 @@ async function emojiCreateHandler(emoji: Emoji) {
             catch (e) {
 
             }
-            finally {
-                return;
-            }
         });
         await Promise.all(createEmojiPromises);
     }
@@ -122,18 +120,15 @@ async function emojiDeleteHandler(emoji: Emoji) {
     try {
         const { name } = emoji;
         delete emojiMap[name]; // TODO delete image from disk?
-        const createEmojiPromises = bot.guilds.map(async (guild) => {
+        const deleteEmojiPromises = bot.guilds.map(async (guild) => {
             try {
                 await guild.deleteEmoji(name);
             }
             catch (e) {
 
             }
-            finally {
-                return;
-            }
         });
-        await Promise.all(createEmojiPromises);
+        await Promise.all(deleteEmojiPromises);
     }
     catch (e) {
         console.error('Something happened.', e);
@@ -396,7 +391,11 @@ async function helpHandler(message: Message): Promise<void> {
 
     const helpMessage: Array<string> = [
         '',
+        `Add me to a server: <${discordConf.joinUrl}>`,
+        '',
         '/help - Show this help',
+        '',
+        '/emoji sync - Sync local emojis to every server',
         '/info - Get some basic info about me',
         '/list <param> - Get a list of all available elements: url, emoji-sync, emoji-server',
         '/save <name> <url> - Save a new url',

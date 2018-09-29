@@ -2,6 +2,7 @@ import { join } from 'path';
 
 export interface DiscordConf {
     token: string;
+    joinUrl: string;
 }
 
 export interface ServerConf {
@@ -22,11 +23,12 @@ class AppConfService {
         }
 
         const {
-            token
+            token,
+            joinUrl
         } = <DiscordConf>discordConf;
 
-        if (!token) {
-            throw new Error('Discord configuration is missing parameters. The following need to exist: token.');
+        if (!token || !joinUrl) {
+            throw new Error('Discord configuration is missing parameters. The following need to exist: token, joinUrl.');
         }
 
         // ServerConf
