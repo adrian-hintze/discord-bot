@@ -25,14 +25,6 @@ interface MapFile {
     [key: string]: string
 }
 
-interface EmojiMapElement {
-    discordUrl: string;
-    localUrl: string;
-}
-interface EmojiMapFile {
-    [key: string]: EmojiMapElement
-}
-
 const writeFileAsync = promisify(writeFile);
 const serverConf: ServerConf = appConfService.serverConf;
 
@@ -63,7 +55,7 @@ catch (error) {
     process.exit(1);
 }
 
-function getMappingFileContentsSync(path: string, defaultContents: any): MapFile | EmojiMapFile | Array<string> {
+function getMappingFileContentsSync(path: string, defaultContents: any): MapFile | Array<string> {
     try {
         if (!existsSync(path)) {
             writeFileSync(path, JSON.stringify(defaultContents), 'utf8');
@@ -84,7 +76,7 @@ const urlMap: MapFile = <MapFile>getMappingFileContentsSync(urlMapFilePath, {});
 // Emoji mapping file
 const emojiMapFilename: string = 'emoji.json';
 const emojiMapFilePath: string = joinPath(mapsDirPath, emojiMapFilename);
-let emojiMap: EmojiMapFile = <EmojiMapFile>getMappingFileContentsSync(emojiMapFilePath, {});
+let emojiMap: MapFile = <MapFile>getMappingFileContentsSync(emojiMapFilePath, {});
 
 // Conversation mapping file
 const conversationMapFilename: string = 'conversation.json';
@@ -113,6 +105,64 @@ bot.on('ready', () => {
     */
 });
 
+// Emojis
+async function emojiCreateHandler(emoji: Emoji) {
+    try {
+        await saveEmoji(emoji);
+        const createEmojiPromises = bot.guilds.map(async (guild) => {
+            const { name } = emoji;
+            try {
+                await guild.createEmoji(name, emojiMap[name]);
+            }
+            catch (e) {
+
+            }
+            finally {
+                return;
+            }
+        });
+        await Promise.all(createEmojiPromises);
+    }
+    catch (e) {
+        console.error('Something happened.', e);
+    }
+}
+
+async function emojiDeleteHandler(emoji: Emoji) {
+    try {
+        const { name } = emoji;
+        delete emojiMap[name]; // TODO delete image from disk?
+        const createEmojiPromises = bot.guilds.map(async (guild) => {
+            try {
+                await guild.deleteEmoji(name);
+            }
+            catch (e) {
+
+            }
+            finally {
+                return;
+            }
+        });
+        await Promise.all(createEmojiPromises);
+    }
+    catch (e) {
+        console.error('Something happened.', e);
+    }
+}
+
+bot.on('emojiCreate', emojiCreateHandler);
+bot.on('emojiDelete', emojiDeleteHandler);
+bot.on('emojiUpdate', async (oldEmoji, newEmoji) => {
+    try {
+        await emojiDeleteHandler(oldEmoji);
+        await emojiCreateHandler(newEmoji);
+    }
+    catch (e) {
+        console.error('Something happened.', e);
+    }
+});
+
+// Messages
 bot.on('message', async (message: Message) => {
     const content: string = message.content;
 
@@ -234,6 +284,20 @@ bot.on('message', async (message: Message) => {
     }
 });
 
+function saveEmoji(emoji: Emoji) {
+    const { name, url } = emoji;
+    const imgName: string = `${name}${extname(url)}`;
+    let localUrl: string = resolveUrl(serverConf.domain, '/emoji/');
+    localUrl = resolveUrl(localUrl, imgName);
+
+    emojiMap[name] = localUrl;
+
+    return imageDownloader.image({
+        url,
+        dest: joinPath(staticFilesDirPath, 'emoji', imgName)
+    });
+}
+
 async function mentionHandler(message: Message): Promise<void> {
     if (!conversationMap.length) {
         return;
@@ -279,22 +343,7 @@ async function emojiHandler(message: Message): Promise<void> {
         case 'init':
             emojiMap = {};
 
-            const downloadPromises: Array<Promise<void>> = emojis.map((emoji: Emoji) => {
-                const { name, url } = emoji;
-                const imgName: string = `${name}${extname(url)}`;
-                let localUrl: string = resolveUrl(serverConf.domain, '/emoji/');
-                localUrl = resolveUrl(localUrl, imgName);
-
-                emojiMap[name] = {
-                    localUrl,
-                    discordUrl: url
-                };
-
-                return imageDownloader.image({
-                    url,
-                    dest: joinPath(staticFilesDirPath, 'emoji', imgName)
-                });
-            });
+            const downloadPromises: Array<Promise<void>> = emojis.map(e => saveEmoji(e));
             await Promise.all(downloadPromises);
 
             await writeFileAsync(emojiMapFilePath, JSON.stringify(emojiMap), 'utf8');
@@ -311,7 +360,7 @@ async function emojiHandler(message: Message): Promise<void> {
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
-                        return guild.createEmoji(value.localUrl, key);
+                        return guild.createEmoji(value, key);
                     });
                     await Promise.all(createEmojiPromises);
                 }
@@ -401,7 +450,7 @@ async function listHandler(message: Message): Promise<void> {
         case 'emoji-sync':
             Object.entries(emojiMap).forEach((entry) => {
                 const [key, value] = entry;
-                names.push(`${key} - <${value.localUrl}>`);
+                names.push(`${key} - <${value}>`);
             });
 
             names.sort((a, b) => a < b ? -1 : 1);
