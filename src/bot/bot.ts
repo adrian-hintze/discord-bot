@@ -10,14 +10,11 @@ import {
     Collection,
     Emoji,
     Guild,
-    GuildMember,
     Message,
-    TextChannel,
     User
 } from 'discord.js';
 
 import { appConfService, ServerConf } from '../services/app-conf.service';
-import { resolve } from 'dns';
 
 const imageDownloader: any = require('image-downloader');
 
@@ -89,13 +86,6 @@ const bot: Client = new Client();
 
 bot.on('ready', () => {
     console.log('My body is ready!');
-
-    /*
-    bot.guilds.forEach((guild: Guild) => {
-        const member: GuildMember = <GuildMember>guild.members.get(bot.user.id);
-        member.setNickname('Cortana');
-    });
-    */
 
     /*
     const channel: TextChannel = <TextChannel>guild.channels.get(id);
