@@ -339,31 +339,33 @@ async function emojiHandler(message: Message): Promise<void> {
             await message.delete();
             return;
         case 'sync':
+            console.log('Syncing emojis');
             const failGuilds: Array<string> = [];
             const promises: Array<Promise<void>> = bot.guilds.map(async (guild) => {
+                console.log(`Syncing emojis for guild ${guild.name}`);
                 try {
                     const emojis: Collection<string, Emoji> = guild.emojis;
                     const deleteEmojiPromises: Array<Promise<void>> = emojis.map(e => guild.deleteEmoji(e));
                     await Promise.all(deleteEmojiPromises);
+                    console.log(`Deleted emojis for guild ${guild.name}`);
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
+                        console.log(key, value);
                         return guild.createEmoji(value, key);
                     });
                     await Promise.all(createEmojiPromises);
+                    console.log(`Created emojis for guild ${guild.name}`);
                 }
                 catch (e) {
                     console.error(`Error syncing guild: ${guild.name}.`);
                     failGuilds.push(guild.name);
                 }
-                finally {
-                    return;
-                }
             });
             await Promise.all(promises);
 
             if (failGuilds.length) {
-                await message.channel.send(`${message.author} No he podido sincronizar: ${failGuilds.join(' ')}.`);
+                await message.channel.send(`${message.author} No he podido sincronizar: ${failGuilds.join(', ')}.`);
             }
 
             const nono: Emoji = message.guild.emojis.find(e => e.name === 'nono');
