@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
-import { extname, join as joinPath } from 'path';
+import { extname, join as joinPath, join } from 'path';
 import { resolve as resolveUrl } from 'url';
 import { promisify } from 'util';
 
@@ -351,7 +351,9 @@ async function emojiHandler(message: Message): Promise<void> {
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
-                        return guild.createEmoji(value, key);
+                        const requestSegments = value.split('/');
+                        const filename = requestSegments[requestSegments.length - 1];
+                        return guild.createEmoji(joinPath(staticFilesDirPath, filename), key);
                     });
                     await Promise.all(createEmojiPromises);
                     console.log(`Created emojis for guild ${guild.name}`);
