@@ -97,6 +97,7 @@ bot.on('ready', () => {
 });
 
 // Emojis
+/*
 async function emojiCreateHandler(emoji: Emoji) {
     try {
         await saveEmoji(emoji);
@@ -135,6 +136,7 @@ async function emojiDeleteHandler(emoji: Emoji) {
     }
 }
 
+// Apparently the callbacks don't work
 bot.on('emojiCreate', emojiCreateHandler);
 bot.on('emojiDelete', emojiDeleteHandler);
 bot.on('emojiUpdate', async (oldEmoji, newEmoji) => {
@@ -146,6 +148,7 @@ bot.on('emojiUpdate', async (oldEmoji, newEmoji) => {
         console.error('Something happened.', e);
     }
 });
+*/
 
 // Messages
 bot.on('message', async (message: Message) => {
@@ -269,7 +272,7 @@ bot.on('message', async (message: Message) => {
     }
 });
 
-function saveEmoji(emoji: Emoji) {
+function saveEmoji(emoji: Emoji): Promise<void> {
     const { name, url } = emoji;
     const imgName: string = `${name}${extname(url)}`;
     let localUrl: string = resolveUrl(serverConf.domain, '/emoji/');
