@@ -17,14 +17,13 @@ import {
 import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.service';
 
 const imageDownloader: any = require('image-downloader');
-const isAnImageUrl: Function = require('is-an-image-url');
+const isImageUrl = require('is-image-url-async');
 
 interface MapFile {
     [key: string]: string
 }
 
 const writeFileAsync = promisify(writeFile);
-const isAnImageUrlPromise = promisify(isAnImageUrl);
 const serverConf: ServerConf = appConfService.serverConf;
 const discordConf: DiscordConf = appConfService.discordConf;
 let synchronizingEmoji: boolean = false;
@@ -514,7 +513,7 @@ async function saveHandler(message: Message): Promise<void> {
         return;
     }
 
-    const isImage: boolean = await isAnImageUrlPromise(url);
+    const isImage: boolean = await isImageUrl(url);
     console.log(url, isImage);
     if (isImage) {
         // TODO
