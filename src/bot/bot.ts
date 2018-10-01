@@ -17,12 +17,14 @@ import {
 import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.service';
 
 const imageDownloader: any = require('image-downloader');
+const isAnImageUrl: Function = require('is-an-image-url');
 
 interface MapFile {
     [key: string]: string
 }
 
 const writeFileAsync = promisify(writeFile);
+const isAnImageUrlPromise = promisify(isAnImageUrl);
 const serverConf: ServerConf = appConfService.serverConf;
 const discordConf: DiscordConf = appConfService.discordConf;
 let synchronizingEmoji: boolean = false;
@@ -500,16 +502,22 @@ async function saveHandler(message: Message): Promise<void> {
         return;
     }
 
+    const key: string = parts[1].trim();
+    if (urlMap[key]) {
+        await message.channel.send(`${author} Pfff, ¿${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
+        return;
+    }
+
     const url: string = parts[2].trim();
     if (!isWebUri(url)) {
         await message.channel.send(`${author} ¿Qué quieres que haga con esto? Dame una URL y te daré algo mejor a cambio... 🍑`);
         return;
     }
 
-    const key: string = parts[1].trim();
-    if (urlMap[key]) {
-        await message.channel.send(`${author} Pfff, ¿${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
-        return;
+    const isImage: boolean = await isAnImageUrlPromise(url);
+    if (isImage) {
+        // TODO
+        console.log(url);
     }
 
     urlMap[key] = url;
