@@ -515,9 +515,9 @@ async function saveHandler(message: Message): Promise<void> {
     }
 
     const isImage: boolean = await isAnImageUrlPromise(url);
+    console.log(url, isImage);
     if (isImage) {
         // TODO
-        console.log(url);
     }
 
     urlMap[key] = url;
