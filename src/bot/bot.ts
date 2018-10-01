@@ -454,7 +454,9 @@ async function listHandler(message: Message): Promise<void> {
             responseContent += 'Esto es lo que te puedo enseñar:';
             responseContent += names.join('\n');
 
-            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.channel.send(`${message.author} ${responseContent}`, {
+                split: true
+            });
             await message.delete();
             return;
         case 'emoji-sync':
@@ -468,7 +470,9 @@ async function listHandler(message: Message): Promise<void> {
             responseContent += 'Estos son los emoji disponibles para sincronizar:';
             responseContent += names.join('\n');
 
-            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.channel.send(`${message.author} ${responseContent}`, {
+                split: true
+            });
             await message.delete();
             return;
         case 'emoji-server':
@@ -485,7 +489,9 @@ async function listHandler(message: Message): Promise<void> {
             responseContent += 'Estos son los emoji disponibles en el servidor:';
             responseContent += names.join('\n');
 
-            await message.channel.send(`${message.author} ${responseContent}`);
+            await message.channel.send(`${message.author} ${responseContent}`, {
+                split: true
+            });
             await message.delete();
             return;
         default:
