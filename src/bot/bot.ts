@@ -577,6 +577,9 @@ async function debugHandler(message: Message): Promise<void> {
                 files: [emojiMapFilePath]
             });
             return;
+        case 'syncing-status':
+            await message.channel.send(`Syncing: ${synchronizingEmoji}.`);
+            return;
         default:
             await message.channel.send(`Unknown command ${param}.`);
     }
