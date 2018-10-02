@@ -523,7 +523,7 @@ async function saveHandler(message: Message): Promise<void> {
     urlMap[key] = url;
 
     const ext: string = await isImageUrl(url);
-    if (ext) {
+    if (ext && (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif')) {
         const imageName: string = `${key}.${ext}`;
         await imageDownloader.image({
             url,
