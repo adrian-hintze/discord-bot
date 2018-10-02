@@ -526,8 +526,8 @@ async function saveHandler(message: Message): Promise<void> {
     if (isImage) {
         await imageDownloader.image({
             url,
-            dest: joinPath(staticFilesDirPath, 'img', key)
-        });// TODO
+            dest: joinPath(staticFilesDirPath, 'img', `${key}.img`)
+        });
 
         let localUrl: string = resolveUrl(serverConf.domain, '/img/');
         localUrl = resolveUrl(localUrl, key);
