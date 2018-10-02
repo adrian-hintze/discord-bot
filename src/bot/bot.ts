@@ -522,15 +522,16 @@ async function saveHandler(message: Message): Promise<void> {
 
     urlMap[key] = url;
 
-    const isImage: boolean = await isImageUrl(url);
-    if (isImage) {
+    const ext: string = await isImageUrl(url);
+    if (ext) {
+        const imageName: string = `${key}.${ext}`;
         await imageDownloader.image({
             url,
-            dest: joinPath(staticFilesDirPath, 'img', `${key}.img`)
+            dest: joinPath(staticFilesDirPath, 'img', imageName)
         });
 
         let localUrl: string = resolveUrl(serverConf.domain, '/img/');
-        localUrl = resolveUrl(localUrl, key);
+        localUrl = resolveUrl(localUrl, imageName);
         urlMap[key] = localUrl;
     }
 
