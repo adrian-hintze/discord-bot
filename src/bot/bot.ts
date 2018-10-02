@@ -34,7 +34,12 @@ const staticFilesDirPath: string = joinPath(__dirname, '..', '..', staticDirname
 try {
     if (!existsSync(staticFilesDirPath)) {
         mkdirSync(staticFilesDirPath);
+    }
+    if (!existsSync(joinPath(staticFilesDirPath, 'emoji'))) {
         mkdirSync(joinPath(staticFilesDirPath, 'emoji'));
+    }
+    if (!existsSync(joinPath(staticFilesDirPath, 'img'))) {
+        mkdirSync(joinPath(staticFilesDirPath, 'img'));
     }
 }
 catch (error) {
@@ -361,10 +366,6 @@ async function emojiHandler(message: Message): Promise<void> {
 
                     const createEmojiPromises: Array<Promise<Emoji>> = Object.entries(emojiMap).map((entry) => {
                         const [key, value] = entry;
-                        // for some reason it does not like the URL, lol
-                        const urlSegments: Array<string> = value.split('/');
-                        const filename: string = urlSegments[urlSegments.length - 1];
-                        const filePath: string = joinPath(staticFilesDirPath, 'emoji', filename);
                         return guild.createEmoji(value, key);
                     });
                     await Promise.all(createEmojiPromises);
@@ -519,13 +520,20 @@ async function saveHandler(message: Message): Promise<void> {
         return;
     }
 
+    urlMap[key] = url;
+
     const isImage: boolean = await isImageUrl(url);
-    console.log(url, isImage);
     if (isImage) {
-        // TODO
+        await imageDownloader.image({
+            url,
+            dest: joinPath(staticFilesDirPath, 'img', key)
+        });// TODO
+
+        let localUrl: string = resolveUrl(serverConf.domain, '/img/');
+        localUrl = resolveUrl(localUrl, key);
+        urlMap[key] = localUrl;
     }
 
-    urlMap[key] = url;
     await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
     await message.channel.send(`${author} He aprendido un nuevo truco: ${key}. 😘`);
     await message.delete();
