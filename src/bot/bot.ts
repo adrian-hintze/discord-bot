@@ -259,16 +259,19 @@ bot.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
 
-                await message.channel.send(`${author} - ${url}`);
-                /*
-                await message.channel.send(`${author} - ${key}`, {
-                    embed: {
-                        image: {
-                            url
+                if (extname(url) === '.png' || extname(url) === '.jpg') {
+                    await message.channel.send(`${author} - ${key}`, {
+                        embed: {
+                            image: {
+                                url
+                            }
                         }
-                    }
-                });
-                */
+                    });
+                }
+                else {
+                    await message.channel.send(`${author} - ${url}`);
+                }
+
                 await message.delete();
             }
             return;
