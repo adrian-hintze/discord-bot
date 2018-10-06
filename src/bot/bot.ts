@@ -259,7 +259,7 @@ bot.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
 
-                if (extname(url) === '.png' || extname(url) === '.jpg') {
+                if (extname(url) === '.png' || extname(url) === '.jpg' || extname(url) === '.gif') {
                     await message.channel.send(`${author} - ${key}`, {
                         embed: {
                             image: {
