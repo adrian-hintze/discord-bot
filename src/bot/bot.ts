@@ -527,7 +527,8 @@ async function saveHandler(message: Message): Promise<void> {
 
     try {
         const ext: string = await isImageUrl(url);
-        if (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif') {
+        //if (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif') {
+        if (ext) {
             const imageName: string = `${key}.${ext}`;
             await imageDownloader.image({
                 url,
