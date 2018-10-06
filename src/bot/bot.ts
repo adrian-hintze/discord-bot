@@ -17,7 +17,6 @@ import {
 import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.service';
 
 const imageDownloader: any = require('image-downloader');
-const imageDownload: (url: string) => Promise<Buffer> = require('image-download');
 const isImageUrl = require('is-image-url-async');
 
 interface MapFile {
@@ -528,19 +527,24 @@ async function saveHandler(message: Message): Promise<void> {
 
     try {
         const ext: string = await isImageUrl(url);
-        if (ext) {
-            const imgBuffer: Buffer = await imageDownload(url);
+        if (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif') {
             const imageName: string = `${key}.${ext}`;
-            const dest = joinPath(staticFilesDirPath, 'img', imageName);
-            await writeFileAsync(dest, imgBuffer);
+            await imageDownloader.image({
+                url,
+                dest: joinPath(staticFilesDirPath, 'img', imageName)
+            });
 
             let localUrl: string = resolveUrl(serverConf.domain, '/img/');
             localUrl = resolveUrl(localUrl, imageName);
             urlMap[key] = localUrl;
         }
+        else if (ext === 'gif') {
+            // TODO
+        }
     }
     catch (error) {
         delete urlMap[key];
+        await message.channel.send(`${author} Woops, la he liado... 😳`);
         throw error;
     }
 
