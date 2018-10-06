@@ -259,7 +259,7 @@ bot.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
 
-                if (extname(url) === '.png' || extname(url) === '.jpg' || extname(url) === '.gif') {
+                if (extname(url) === '.png' || extname(url) === '.jpg') {
                     await message.channel.send(`${author} - ${key}`, {
                         embed: {
                             image: {
@@ -527,7 +527,6 @@ async function saveHandler(message: Message): Promise<void> {
 
     try {
         const ext: string = await isImageUrl(url);
-        //if (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif') {
         if (ext) {
             const imageName: string = `${key}.${ext}`;
             await imageDownloader.image({
@@ -571,7 +570,29 @@ async function updateImgHandler(message: Message): Promise<void> {
         return;
     }
 
+    const oldUrl: string = urlMap[key];
     urlMap[key] = url;
+
+    try {
+        const ext: string = await isImageUrl(url);
+        if (ext) {
+            const imageName: string = `${key}.${ext}`;
+            await imageDownloader.image({
+                url,
+                dest: joinPath(staticFilesDirPath, 'img', imageName)
+            });
+
+            let localUrl: string = resolveUrl(serverConf.domain, '/img/');
+            localUrl = resolveUrl(localUrl, imageName);
+            urlMap[key] = localUrl;
+        }
+    }
+    catch (error) {
+        urlMap[key] = oldUrl;
+        await message.channel.send(`${author} Woops, la he liado... 😳`);
+        throw error;
+    }
+
     await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
     await message.channel.send(`${author} Ok, he actualizado ${key}, pero aclárate en el futuro.`);
     await message.delete();
