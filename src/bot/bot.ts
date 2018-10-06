@@ -17,6 +17,7 @@ import {
 import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.service';
 
 const imageDownloader: any = require('image-downloader');
+const imageDownload: (url: string) => Promise<Buffer> = require('image-download');
 const isImageUrl = require('is-image-url-async');
 
 interface MapFile {
@@ -525,17 +526,22 @@ async function saveHandler(message: Message): Promise<void> {
 
     urlMap[key] = url;
 
-    const ext: string = await isImageUrl(url);
-    if (ext && (ext === 'png' || ext === 'jpg' || ext === 'bmp' || ext === 'tif')) {
-        const imageName: string = `${key}.${ext}`;
-        await imageDownloader.image({
-            url,
-            dest: joinPath(staticFilesDirPath, 'img', imageName)
-        });
+    try {
+        const ext: string = await isImageUrl(url);
+        if (ext) {
+            const imgBuffer: Buffer = await imageDownload(url);
+            const imageName: string = `${key}.${ext}`;
+            const dest = joinPath(staticFilesDirPath, 'img', imageName);
+            await writeFileAsync(dest, imgBuffer);
 
-        let localUrl: string = resolveUrl(serverConf.domain, '/img/');
-        localUrl = resolveUrl(localUrl, imageName);
-        urlMap[key] = localUrl;
+            let localUrl: string = resolveUrl(serverConf.domain, '/img/');
+            localUrl = resolveUrl(localUrl, imageName);
+            urlMap[key] = localUrl;
+        }
+    }
+    catch (error) {
+        delete urlMap[key];
+        throw error;
     }
 
     await writeFileAsync(urlMapFilePath, JSON.stringify(urlMap), 'utf8');
