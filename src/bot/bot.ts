@@ -18,6 +18,7 @@ import { appConfService, DiscordConf, ServerConf } from '../services/app-conf.se
 
 const imageDownloader: any = require('image-downloader');
 const isImageUrl = require('is-image-url-async');
+const isImage = require('is-image');
 
 interface MapFile {
     [key: string]: string
@@ -102,60 +103,6 @@ bot.on('ready', () => {
     }
     */
 });
-
-// Emojis
-/*
-async function emojiCreateHandler(emoji: Emoji) {
-    try {
-        await saveEmoji(emoji);
-        const createEmojiPromises = bot.guilds.map(async (guild) => {
-            const { name } = emoji;
-            try {
-                await guild.createEmoji(name, emojiMap[name]);
-            }
-            catch (e) {
-
-            }
-        });
-        await Promise.all(createEmojiPromises);
-    }
-    catch (e) {
-        console.error('Something happened.', e);
-    }
-}
-
-async function emojiDeleteHandler(emoji: Emoji) {
-    try {
-        const { name } = emoji;
-        delete emojiMap[name]; // TODO delete image from disk?
-        const deleteEmojiPromises = bot.guilds.map(async (guild) => {
-            try {
-                await guild.deleteEmoji(name);
-            }
-            catch (e) {
-
-            }
-        });
-        await Promise.all(deleteEmojiPromises);
-    }
-    catch (e) {
-        console.error('Something happened.', e);
-    }
-}
-
-// Apparently the callbacks don't work
-bot.on('emojiCreate', emojiCreateHandler);
-bot.on('emojiDelete', emojiDeleteHandler);
-bot.on('emojiUpdate', async (oldEmoji, newEmoji) => {
-    try {
-        await emojiDeleteHandler(oldEmoji);
-        await emojiCreateHandler(newEmoji);
-    }
-    catch (e) {
-        console.error('Something happened.', e);
-    }
-});
-*/
 
 // Messages
 bot.on('message', async (message: Message) => {
@@ -254,12 +201,11 @@ bot.on('message', async (message: Message) => {
 
     try {
         if (content.startsWith('/')) {
-            const key = content.toLowerCase().substring(1, content.length);
+            const key = content.substring(1, content.length).trim().toLowerCase();
             const url = urlMap[key];
             if (url) {
                 const author: User = message.author;
-
-                if (extname(url) === '.png' || extname(url) === '.jpg' || extname(url) === '.gif') {
+                if (isImage(url)) {
                     await message.channel.send(`${author} - ${key}`, {
                         embed: {
                             image: {
@@ -304,7 +250,7 @@ async function mentionHandler(message: Message): Promise<void> {
     const { author } = message;
     const randMessage = conversationMap[Math.floor(Math.random() * conversationMap.length)];
     message.channel.send(`${author} ${randMessage}`, {
-        tts: true
+        tts: false
     });
 }
 
@@ -316,7 +262,7 @@ async function deleteImgHandler(message: Message): Promise<void> {
         return;
     }
 
-    const key: string = parts[1].trim();
+    const key: string = parts[1].trim().toLowerCase();
     if (urlMap[key]) {
         delete urlMap[key];
     }
@@ -511,7 +457,7 @@ async function saveHandler(message: Message): Promise<void> {
         return;
     }
 
-    const key: string = parts[1].trim();
+    const key: string = parts[1].trim().toLowerCase();
     if (urlMap[key]) {
         await message.channel.send(`${author} Pfff, ¿${key} otra vez? Seguro que se te ocurre algo nuevo que enseñarme... 😉`);
         return;
@@ -564,7 +510,7 @@ async function updateImgHandler(message: Message): Promise<void> {
         return;
     }
 
-    const key: string = parts[1].trim();
+    const key: string = parts[1].trim().toLowerCase();
     if (!urlMap[key]) {
         await message.channel.send(`${author} ¿Cómo quieres que cambie algo que no existe?`);
         return;
