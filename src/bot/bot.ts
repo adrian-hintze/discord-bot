@@ -209,7 +209,7 @@ bot.on('message', async (message: Message) => {
                     await message.channel.send(`${author} - ${key}`, {
                         embed: {
                             image: {
-                                url
+                                url: encodeURIComponent(url) // Discord does not do this for some reason
                             }
                         }
                     });
