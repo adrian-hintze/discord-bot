@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFile, writeFileSync } from 'fs';
 import { extname, join as joinPath, join } from 'path';
-import { resolve as resolveUrl } from 'url';
+import { resolve as resolveUrl, URL } from 'url';
 import { promisify } from 'util';
 
 import { sync as mkdirSync } from 'mkdirp';
@@ -206,10 +206,11 @@ bot.on('message', async (message: Message) => {
             if (url) {
                 const author: User = message.author;
                 if (isImage(url)) {
+                    const urlObj = new URL(url);
                     await message.channel.send(`${author} - ${key}`, {
                         embed: {
                             image: {
-                                url: encodeURIComponent(url) // Discord does not do this for some reason
+                                url: urlObj.href // Discord does not do this for some reason
                             }
                         }
                     });
