@@ -7,3 +7,5 @@ build/
 
 .vs/
 *.user
+bin/
+obj/
