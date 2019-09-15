@@ -95,7 +95,6 @@ const bot: Client = new Client();
 
 bot.on('ready', () => {
     console.log('My body is ready!');
-    bot.user.setUsername('Kate');
 
     /*
     const channel: TextChannel = <TextChannel>guild.channels.get(id);
@@ -173,6 +172,16 @@ bot.on('message', async (message: Message) => {
     if (content.startsWith('/list')) {
         try {
             await listHandler(message);
+        }
+        catch (error) {
+            console.error('Something happened.', error);
+        }
+        return;
+    }
+
+    if (content.startsWith('/nick')) {
+        try {
+            await nickHandler(message);
         }
         catch (error) {
             console.error('Something happened.', error);
@@ -381,7 +390,7 @@ async function helpHandler(message: Message): Promise<void> {
 }
 
 async function infoHandler(message: Message): Promise<void> {
-    await message.channel.send('Author: Adrian Hintze @Rydion\nRepository: https://github.com/Rydion/discord-bot\nUse "/help" for more commands');
+    await message.channel.send('Author: Adrian Hintze @Rydion\nRepository: https://github.com/adrian-hintze/discord-bot\nUse "/help" for more commands');
 }
 
 async function listHandler(message: Message): Promise<void> {
@@ -449,6 +458,21 @@ async function listHandler(message: Message): Promise<void> {
         default:
             await message.channel.send(`${author} Porque no pruebas con: url, emoji-sync, emoji-server.`);
     }
+}
+
+async function nickHandler(message: Message): Promise<void> {
+    const { author, content } = message;
+    const parts: Array<string> = content.split(/[ ]+/);
+    if (parts.length !== 2) {
+        await message.channel.send(`${author} Háblame bien. #NoesNo`);
+        return;
+    }
+
+    const nickName: string = parts[1].trim();
+    message.guild.me.setNickname(nickName);
+
+    await message.channel.send(`${author} Yes master, call me ${nickName} from now on.`);
+    await message.delete();
 }
 
 async function saveHandler(message: Message): Promise<void> {
