@@ -6,11 +6,11 @@
     "author": {
         "name": "Adrian Hintze",
         "email": "hintze.adrian@gmail.com",
-        "url": "https://github.com/Rydion"
+        "url": "https://github.com/adrian-hintze"
     },
     "engines": {
-        "node": "10.11.0",
-        "npm": "6.4.1"
+        "node": "12.10.0",
+        "npm": "6.10.3"
     },
     "scripts": {
         "start": "node ./build/bot/Main.js",
@@ -22,23 +22,23 @@
     },
     "dependencies": {
         "@discordjs/uws": "11.149.1",
-        "discord.js": "11.4.2",
+        "discord.js": "11.5.1",
         "erlpack": "0.1.2",
-        "express": "4.16.4",
-        "image-downloader": "3.4.2",
-        "is-image": "2.0.0",
+        "express": "4.17.1",
+        "image-downloader": "3.5.0",
+        "is-image": "3.0.0",
         "is-image-url-async": "1.4.0",
         "mkdirp": "0.5.1",
         "node-opus": "0.2.7",
-        "rimraf": "2.6.3",
+        "rimraf": "3.0.0",
         "valid-url": "1.0.9",
         "zlib-sync": "0.1.4"
     },
     "devDependencies": {
-        "@types/express": "4.16.0",
+        "@types/express": "4.17.1",
         "@types/mkdirp": "0.5.2",
-        "@types/node": "10.12.18",
+        "@types/node": "12.7.5",
         "@types/valid-url": "1.0.2",
-        "typescript": "3.2.2"
+        "typescript": "3.6.3"
     }
 }
