@@ -95,7 +95,7 @@ const bot: Client = new Client();
 
 bot.on('ready', () => {
     console.log('My body is ready!');
-    bot.user.setUsername("Kate");
+    bot.user.setUsername('Kate');
 
     /*
     const channel: TextChannel = <TextChannel>guild.channels.get(id);
