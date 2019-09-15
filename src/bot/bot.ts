@@ -179,7 +179,7 @@ bot.on('message', async (message: Message) => {
         return;
     }
 
-    if (content.startsWith('/nick')) {
+    if (content.startsWith('/nickname')) {
         try {
             await nickHandler(message);
         }
