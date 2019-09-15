@@ -380,6 +380,7 @@ async function helpHandler(message: Message): Promise<void> {
         '/emoji sync - Sync local emojis to every server',
         '/info - Get some basic info about me',
         '/list <param> - Get a list of all available elements: url, emoji-sync, emoji-server',
+        '/nickname <param> - Update bot nickname for given server',
         '/save <name> <url> - Save a new url',
         '/update <name> <url> - Update an existing url',
         '/delete <name> - Delete an existing url'
