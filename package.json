@@ -24,7 +24,7 @@
         "@discordjs/uws": "11.149.1",
         "discord.js": "11.5.1",
         "erlpack": "0.1.2",
-        "express": "4.17.1",
+        "express": "4.17.3",
         "image-downloader": "3.5.0",
         "is-image": "3.0.0",
         "is-image-url-async": "1.4.0",
